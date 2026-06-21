@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>우리반 온라인 보드</title>
+    <title>공수전분교 온라인 보드 시스템</title>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -23,68 +23,72 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* --- 로그인/인증 화면 --- */
-        #auth-screen { position: fixed; inset: 0; background: var(--bg-color); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
+        /* --- 공통 버튼 및 입력창 --- */
+        .btn-primary { background: var(--indigo); color: white; border: none; padding: 12px 20px; border-radius: var(--radius-md); cursor: pointer; font-weight: 700; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; justify-content: center; }
+        .btn-primary:hover { background: var(--indigo-dark); }
+        .btn-secondary { background: var(--white); color: var(--text-main); border: 1px solid #E5E7EB; padding: 12px 20px; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; justify-content: center; }
+        .btn-secondary:hover { background: #F9FAFB; }
+        .form-input { width: 100%; background: var(--lavender-gray); border: 1px solid transparent; border-radius: var(--radius-md); padding: 14px; font-size: 15px; margin-bottom: 12px; transition: 0.2s; }
+        .form-input:focus { outline: none; border-color: var(--indigo); background: var(--white); }
+        .hidden { display: none !important; }
+
+        /* --- 화면 1: 로그인 (학생 참여코드 / 교사 로그인) --- */
+        #auth-screen { position: fixed; inset: 0; background: var(--bg-color); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
         .auth-card { background: var(--white); padding: 50px; border-radius: 24px; box-shadow: var(--shadow); text-align: center; width: 400px; }
-        .auth-card h1 { margin-bottom: 10px; font-weight: 800; color: var(--indigo); }
+        .auth-card h1 { margin-bottom: 5px; font-weight: 800; color: var(--indigo); letter-spacing: -0.5px; }
         .auth-card p { color: var(--text-sub); margin-bottom: 30px; font-size: 15px; }
-        .btn-google { background: var(--white); color: var(--text-main); border: 1px solid #E5E7EB; padding: 15px; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; width: 100%; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        .btn-google:hover { background: #F9FAFB; }
-        .divider { margin: 20px 0; color: var(--text-sub); display: flex; align-items: center; font-size: 13px; }
-        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #E5E7EB; margin: 0 10px; }
-        .student-input { width: 100%; padding: 15px; border-radius: var(--radius-md); border: 1px solid #E5E7EB; margin-bottom: 10px; text-align: center; font-size: 16px; background: var(--lavender-gray); }
-        .btn-enter { background: var(--indigo); color: white; border: none; padding: 15px; border-radius: var(--radius-md); cursor: pointer; font-weight: 700; width: 100%; transition: 0.2s; }
-        .btn-enter:hover { background: var(--indigo-dark); }
+        .access-code-box { background: var(--lavender-gray); padding: 20px; border-radius: var(--radius-lg); margin-bottom: 20px; }
+        .access-code-box input { text-align: center; font-size: 24px; font-weight: 700; letter-spacing: 4px; color: var(--indigo); background: var(--white); border: 1px solid #E5E7EB; }
+        .divider { margin: 25px 0; color: #9CA3AF; display: flex; align-items: center; font-size: 13px; font-weight: 500; }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #E5E7EB; margin: 0 15px; }
 
-        /* --- 헤더 --- */
-        header { padding: 20px 40px; background: var(--white); border-bottom: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
-        h2 { font-weight: 800; color: var(--text-main); }
-        .header-actions { display: flex; gap: 10px; align-items: center; }
-        .user-info { font-size: 14px; font-weight: 600; color: var(--text-sub); margin-right: 15px; }
-        .btn-action { background: var(--indigo); color: white; padding: 10px 18px; border-radius: var(--radius-md); border: none; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-        .btn-action.secondary { background: var(--lavender-gray); color: var(--text-main); border: 1px solid #E5E7EB; }
-
-        /* --- 보드 메인 --- */
-        #board-area { flex: 1; padding: 30px 40px; overflow: auto; }
-        .layout-sectioned { display: flex; align-items: flex-start; gap: 30px; min-height: 100%; }
-        .layout-freestyle { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 20px; }
-        .section { min-width: 360px; max-width: 360px; display: flex; flex-direction: column; gap: 20px; }
-        .layout-freestyle .card, .layout-freestyle .post-form-card { width: calc(33.333% - 14px); min-width: 300px; }
-
-        .section-header { background: var(--indigo); color: white; padding: 15px 20px; border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2); }
-        .section-title { font-weight: 700; font-size: 16px; }
-
-        /* --- 카드 (게시물) --- */
-        .card { background: var(--white); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px; transition: transform 0.2s; border: 1px solid #E5E7EB; }
-        .card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.08); }
-        .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
-        .card-title { font-weight: 700; font-size: 17px; }
-        .card-author { font-size: 12px; color: var(--text-sub); background: rgba(0,0,0,0.05); padding: 2px 8px; border-radius: 4px; margin-top: 5px; display: inline-block; }
-        .card-content { font-size: 15px; color: var(--text-main); line-height: 1.5; white-space: pre-wrap; word-break: break-all; }
-        .card-actions button { background: transparent; border: none; cursor: pointer; color: var(--text-sub); margin-left: 8px; }
-        .card-actions button:hover { color: var(--indigo); }
+        /* --- 화면 2: 교사 대시보드 --- */
+        #dashboard-screen { padding: 40px; overflow-y: auto; flex: 1; }
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .dashboard-header h2 { font-size: 28px; font-weight: 800; }
+        .board-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+        .create-board-card { border: 2px dashed #D1D5DB; background: rgba(255,255,255,0.5); border-radius: var(--radius-lg); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; cursor: pointer; color: var(--text-sub); font-weight: 600; transition: 0.2s; }
+        .create-board-card:hover { border-color: var(--indigo); color: var(--indigo); background: var(--white); }
         
-        .media-preview { width: 100%; border-radius: 8px; object-fit: cover; max-height: 200px; background: #F9FAFB; }
-        .attachment-link { display: inline-flex; align-items: center; gap: 8px; background: var(--lavender-gray); padding: 10px; border-radius: 8px; text-decoration: none; font-size: 13px; color: var(--text-main); font-weight: 600; word-break: break-all; }
-        .attachment-link i { color: var(--indigo); }
+        .board-card { background: var(--white); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow); border: 1px solid #E5E7EB; display: flex; flex-direction: column; justify-content: space-between; min-height: 200px; cursor: pointer; transition: transform 0.2s; }
+        .board-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.08); }
+        .board-card-title { font-size: 20px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
+        .board-card-desc { font-size: 14px; color: var(--text-sub); line-height: 1.5; flex: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .board-card-footer { border-top: 1px solid #F3F4F6; padding-top: 15px; margin-top: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-sub); }
+        .badge-code { background: var(--lavender-gray); color: var(--indigo); padding: 4px 10px; border-radius: 20px; font-weight: 700; letter-spacing: 1px; }
 
-        /* --- 입력 UI --- */
+        /* --- 화면 3: 개별 보드 영역 (기존 UI 호환) --- */
+        #board-header { padding: 20px 40px; background: var(--white); border-bottom: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+        .board-title-area { display: flex; flex-direction: column; gap: 4px; }
+        .board-title-area h2 { font-weight: 800; font-size: 22px; }
+        .board-title-area p { font-size: 14px; color: var(--text-sub); }
+        
+        #board-workspace { flex: 1; padding: 30px 40px; overflow: auto; }
+        .layout-freestyle { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 20px; }
+        .layout-freestyle .card, .layout-freestyle .post-form-card { width: calc(33.333% - 14px); min-width: 300px; }
+        .card { background: var(--white); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow); border: 1px solid #E5E7EB; margin-bottom: 20px; }
+        .card-title { font-weight: 700; font-size: 17px; margin-bottom: 10px; }
+        .card-content { font-size: 15px; line-height: 1.5; white-space: pre-wrap; }
+        
+        /* 입력 폼 */
         .post-form-card { border: 2px solid var(--indigo); border-radius: var(--radius-lg); padding: 20px; background: var(--white); box-shadow: var(--shadow); }
         .color-picker { display: flex; gap: 8px; margin-bottom: 15px; }
-        .color-dot { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+        .color-dot { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
         .color-dot.active { border-color: var(--text-main); transform: scale(1.1); }
+
+        /* --- 모달창 (초대/QR코드 및 보드 생성) --- */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(4px); }
+        .modal-content { background: var(--white); padding: 40px; border-radius: 24px; width: 450px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1); position: relative; }
+        .btn-close-modal { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 20px; color: var(--text-sub); cursor: pointer; }
         
-        .form-input { width: 100%; background: var(--lavender-gray); border: none; border-radius: var(--radius-md); padding: 16px; font-size: 15px; margin-bottom: 12px; font-family: inherit; }
-        .form-input:focus { outline: 1px solid var(--indigo); background: #EAE9F4; }
-        .form-textarea { resize: none; min-height: 100px; }
-        
-        .form-tools { display: flex; gap: 8px; margin-bottom: 15px; }
-        .btn-tool { background: var(--lavender-gray); color: var(--text-main); padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-        .btn-tool:hover { background: #E5E7EB; }
-        
-        .btn-submit { background: var(--indigo); color: white; width: 100%; padding: 14px; border-radius: var(--radius-md); font-weight: 700; font-size: 16px; border: none; cursor: pointer; }
-        .hidden { display: none !important; }
-        .preview-text { font-size: 12px; color: var(--indigo); margin-bottom: 10px; word-break: break-all; }
+        /* QR 코드 안내창 특화 디자인 (스크린샷 참고) */
+        .qr-domain { font-size: 24px; font-weight: 800; color: #D95D39; /* 스크린샷 주황색 톤 */ margin-bottom: 5px; }
+        .qr-subtitle { font-size: 18px; font-weight: 700; color: var(--text-main); margin-bottom: 15px; }
+        .qr-code-text { font-size: 64px; font-weight: 900; color: #5B63F5; /* 스크린샷 블루 톤 */ line-height: 1; margin-bottom: 25px; letter-spacing: 2px; }
+        .qr-image-wrapper { background: white; padding: 15px; border-radius: 12px; display: inline-block; border: 1px solid #E5E7EB; margin-bottom: 25px; }
+        .qr-actions { display: flex; gap: 15px; justify-content: center; }
+        .qr-actions button { flex: 1; padding: 15px; border-radius: 8px; border: 1px solid #E5E7EB; background: var(--white); font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.2s; }
+        .qr-actions button:hover { background: #F9FAFB; border-color: #D1D5DB; }
     </style>
 </head>
 <body>
@@ -92,44 +96,95 @@
     <div id="auth-screen">
         <div class="auth-card">
             <h1>우리반 보드</h1>
-            <p>함께 만드는 온라인 학습 공간</p>
+            <p>공수전분교 온라인 학습 공간</p>
             
-            <button class="btn-google" id="btn-teacher-login">
+            <div class="access-code-box">
+                <input type="text" id="student-name" class="form-input" placeholder="이름 (예: 홍길동)" style="background:var(--white); font-size:15px; letter-spacing:normal; font-weight:600;">
+                <input type="text" id="join-code" class="form-input" placeholder="000000" maxlength="6" style="margin-bottom: 15px;">
+                <button class="btn-primary" style="width: 100%;" onclick="studentJoin()">보드 입장하기</button>
+            </div>
+            
+            <div class="divider">선생님이신가요?</div>
+            <button class="btn-secondary" style="width: 100%;" onclick="teacherLogin()">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width: 20px;">
-                교사 로그인 (데이터 관리)
+                교사 계정으로 시작
             </button>
-            
-            <div class="divider">학생 접속</div>
-            
-            <input type="text" id="student-name" class="student-input" placeholder="이름을 입력하세요">
-            <input type="text" id="student-code" class="student-input" placeholder="접속 코드 (예: 1234)">
-            <button class="btn-enter" id="btn-student-login">보드 입장하기</button>
         </div>
     </div>
 
-    <header id="main-header" class="hidden">
-        <h2>우리반 온라인 보드</h2>
-        <div class="header-actions">
-            <span class="user-info" id="user-info-display"></span>
-            <button class="btn-action secondary" onclick="copyShareLink()"><i class="fa-solid fa-link"></i> 공유 링크</button>
-            <button class="btn-action teacher-only" onclick="addSection()"><i class="fa-solid fa-plus"></i> 섹션 추가</button>
-            <button class="btn-action secondary" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> 나가기</button>
+    <div id="dashboard-screen" class="hidden">
+        <div class="dashboard-header">
+            <div>
+                <h2 id="dash-greeting">선생님의 보드 목록</h2>
+                <p style="color: var(--text-sub); margin-top: 5px;">관리 중인 학습 보드를 확인하고 새 보드를 만들어보세요.</p>
+            </div>
+            <button class="btn-secondary" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> 로그아웃</button>
         </div>
-    </header>
-
-    <div id="board-area" class="hidden">
-        <div id="board-container"></div>
+        
+        <div class="board-grid" id="board-list-container">
+            <div class="create-board-card" onclick="openCreateBoardModal()">
+                <i class="fa-solid fa-circle-plus" style="font-size: 32px; margin-bottom: 15px;"></i>
+                새로운 보드 만들기
+            </div>
+        </div>
     </div>
+
+    <div id="board-workspace-container" class="hidden" style="display: flex; flex-direction: column; height: 100vh;">
+        <header id="board-header">
+            <div class="board-title-area">
+                <h2 id="current-board-title">보드 제목</h2>
+                <p id="current-board-desc">보드 설명이 이곳에 표시됩니다.</p>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <span id="current-user-info" style="font-size: 14px; font-weight: 600; color: var(--text-sub); margin-right: 15px;"></span>
+                <button class="btn-primary" id="btn-share-invite" onclick="showInviteModal()"><i class="fa-solid fa-qrcode"></i> 학생 초대</button>
+                <button class="btn-secondary" onclick="goToDashboard()"><i class="fa-solid fa-house"></i> 나가기</button>
+            </div>
+        </header>
+
+        <div id="board-workspace">
+            <div id="posts-container" class="layout-freestyle">
+                </div>
+        </div>
+    </div>
+
+    <div id="modal-board-form" class="modal-overlay hidden">
+        <div class="modal-content" style="text-align: left;">
+            <button class="btn-close-modal" onclick="closeModal('modal-board-form')"><i class="fa-solid fa-xmark"></i></button>
+            <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 20px;" id="board-modal-title">새 보드 만들기</h2>
+            <label style="font-weight: 600; font-size: 14px; margin-bottom: 8px; display: block;">보드 제목</label>
+            <input type="text" id="new-board-title" class="form-input" placeholder="예: 4학년 1학기 국어 질문방">
+            <label style="font-weight: 600; font-size: 14px; margin-bottom: 8px; display: block; margin-top: 10px;">보드 설명 (선택)</label>
+            <textarea id="new-board-desc" class="form-input" rows="3" placeholder="학생들에게 보여줄 안내 사항을 적어주세요"></textarea>
+            <input type="hidden" id="edit-board-id" value="">
+            <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="saveBoard()">저장하기</button>
+        </div>
+    </div>
+
+    <div id="modal-invite" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="btn-close-modal" onclick="closeModal('modal-invite')"><i class="fa-solid fa-xmark"></i></button>
+            <div class="qr-domain" id="qr-domain-text">우리반 보드</div>
+            <div class="qr-subtitle">접속 후 방번호 입력</div>
+            <div class="qr-code-text" id="display-access-code">000000</div>
+            
+            <div class="qr-image-wrapper">
+                <img id="qr-image" src="" alt="QR Code" width="180" height="180">
+            </div>
+            
+            <div class="qr-actions">
+                <button onclick="enlargeQR()">QR 크게 보기</button>
+                <button onclick="copyDirectLink()">링크 복사</button>
+            </div>
+        </div>
+    </div>
+
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // ==========================================
-        // 🚨 여기에 선생님의 Firebase Config 값을 입력해주세요
-        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyB29-sMOLGpBEefRZoqfy8oPzzo8Ed571M",
             authDomain: "board-d417d.firebaseapp.com",
@@ -139,349 +194,281 @@
             appId: "1:580625108615:web:855970b773bce3d4def222"
         };
 
-        // Firebase 초기화 방어 코드 (설정값이 없을 땐 로컬 모드로 작동하도록 구성)
-        let app, auth, db, storage;
-        let isFirebaseActive = false;
-        
-        if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getFirestore(app);
-            storage = getStorage(app);
-            isFirebaseActive = true;
-        }
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        // --- 전역 상태 관리 ---
-        window.currentUser = null; // { uid, name, role: 'teacher'|'student' }
-        window.boardSections = [{ id: 'sec-default', title: '💡오늘의 배움 ' }];
+        // 상태 변수
+        window.currentUser = null;
+        window.currentBoard = null;
         window.boardPosts = [];
-        window.activeFormSection = null;
+        window.unsubscribePosts = null;
         const colors = ['#FFFFFF', '#FFEBEE', '#E3F2FD', '#E8F5E9', '#FFF3E0', '#F3E5F5'];
 
-        // --- 인증 로직 ---
-        document.getElementById('btn-teacher-login').addEventListener('click', async () => {
-            if (!isFirebaseActive) {
-                alert("Firebase 설정이 필요합니다. 임시 교사 모드로 진입합니다.");
-                setSession('teacher-local', '석현쌤', 'teacher');
-                initBoard();
-                return;
-            }
+        // --- 1. 로그인 및 인증 ---
+        window.teacherLogin = async () => {
             try {
-                const provider = new GoogleAuthProvider();
-                const result = await signInWithPopup(auth, provider);
-                setSession(result.user.uid, result.user.displayName, 'teacher');
-                initBoard();
+                const result = await signInWithPopup(auth, new GoogleAuthProvider());
+                window.currentUser = { uid: result.user.uid, name: result.user.displayName, role: 'teacher' };
+                showDashboard();
             } catch (error) { console.error(error); alert("로그인 실패"); }
-        });
-
-        document.getElementById('btn-student-login').addEventListener('click', () => {
-            const name = document.getElementById('student-name').value;
-            const code = document.getElementById('student-code').value;
-            if (!name || !code) return alert("이름과 코드를 입력해주세요.");
-            
-            // 공유 링크의 파라미터나 설정된 코드와 일치하는지 확인 (기본 패스워드 로직)
-            const expectedCode = new URLSearchParams(window.location.search).get('code') || "1234";
-            if (code !== expectedCode && code !== "1234") return alert("코드가 올바르지 않습니다.");
-
-            // 학생 고유 ID 생성 (브라우저 세션 유지용)
-            let studentId = localStorage.getItem('studentUid');
-            if (!studentId) {
-                studentId = 'stu_' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem('studentUid', studentId);
-            }
-            setSession(studentId, name, 'student');
-            initBoard();
-        });
-
-        function setSession(uid, name, role) {
-            window.currentUser = { uid, name, role };
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('main-header').classList.remove('hidden');
-            document.getElementById('board-area').classList.remove('hidden');
-            document.getElementById('user-info-display').innerText = `${name} (${role === 'teacher' ? '교사' : '학생'})`;
-            
-            // 교사 전용 UI 제어
-            document.querySelectorAll('.teacher-only').forEach(el => {
-                el.style.display = role === 'teacher' ? 'flex' : 'none';
-            });
         }
 
-        window.logout = () => {
-            if (isFirebaseActive && window.currentUser?.role === 'teacher') signOut(auth);
+        window.studentJoin = async () => {
+            const name = document.getElementById('student-name').value.trim();
+            const code = document.getElementById('join-code').value.trim();
+            if (!name || code.length !== 6) return alert("이름과 6자리 방번호를 정확히 입력해주세요.");
+
+            // 방 번호로 보드 검색
+            const q = query(collection(db, "boards"), where("accessCode", "==", code));
+            const snap = await getDocs(q);
+            
+            if (snap.empty) {
+                alert("해당 방번호를 가진 보드를 찾을 수 없습니다.");
+                return;
+            }
+
+            const boardData = snap.docs[0];
+            window.currentBoard = { id: boardData.id, ...boardData.data() };
+            window.currentUser = { uid: 'stu_' + Date.now(), name: name, role: 'student' };
+            
+            openBoardWorkspace();
+        }
+
+        window.logout = async () => {
+            if (window.currentUser?.role === 'teacher') await signOut(auth);
             window.currentUser = null;
             location.reload();
         }
 
-        // --- 공유 링크 생성 ---
-        window.copyShareLink = () => {
-            const link = window.location.origin + window.location.pathname + "?code=1234";
-            navigator.clipboard.writeText(link).then(() => {
-                alert(`학생 배포용 공유 링크가 복사되었습니다.\n${link}\n(접속 코드: 1234)`);
+        // --- 2. 교사 대시보드 로직 ---
+        function showDashboard() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('board-workspace-container').classList.add('hidden');
+            document.getElementById('dashboard-screen').classList.remove('hidden');
+            document.getElementById('dash-greeting').innerText = `${window.currentUser.name} 선생님의 보드`;
+            
+            loadTeacherBoards();
+        }
+
+        function loadTeacherBoards() {
+            const q = query(collection(db, "boards"), where("teacherId", "==", window.currentUser.uid), orderBy("createdAt", "desc"));
+            onSnapshot(q, (snapshot) => {
+                const container = document.getElementById('board-list-container');
+                // 새 보드 만들기 버튼 유지
+                container.innerHTML = `
+                    <div class="create-board-card" onclick="openCreateBoardModal()">
+                        <i class="fa-solid fa-circle-plus" style="font-size: 32px; margin-bottom: 15px;"></i>
+                        새로운 보드 만들기
+                    </div>
+                `;
+
+                snapshot.forEach(doc => {
+                    const b = doc.data();
+                    container.innerHTML += `
+                        <div class="board-card" onclick="enterTeacherBoard('${doc.id}', '${b.title}', '${b.description}', '${b.accessCode}')">
+                            <div>
+                                <div class="board-card-title">${b.title}</div>
+                                <div class="board-card-desc">${b.description || '설명이 없습니다.'}</div>
+                            </div>
+                            <div class="board-card-footer">
+                                <span class="badge-code">방번호: ${b.accessCode}</span>
+                                <button onclick="event.stopPropagation(); deleteBoard('${doc.id}')" style="background:none; border:none; cursor:pointer; color:var(--text-sub);"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `;
+                });
             });
         }
 
-        // --- 데이터 초기화 및 렌더링 ---
-        function initBoard() {
-            if (isFirebaseActive) {
-                // 실시간 데이터 구독 (Firestore)
-                const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-                onSnapshot(q, (snapshot) => {
-                    window.boardPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    renderBoard();
+        // 보드 생성 
+        window.openCreateBoardModal = () => {
+            document.getElementById('new-board-title').value = '';
+            document.getElementById('new-board-desc').value = '';
+            document.getElementById('edit-board-id').value = '';
+            document.getElementById('board-modal-title').innerText = '새 보드 만들기';
+            document.getElementById('modal-board-form').classList.remove('hidden');
+        }
+
+        window.saveBoard = async () => {
+            const title = document.getElementById('new-board-title').value.trim();
+            const desc = document.getElementById('new-board-desc').value.trim();
+            if (!title) return alert("보드 제목을 입력하세요.");
+
+            // 6자리 랜덤 접근 코드 생성
+            const accessCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+            try {
+                await addDoc(collection(db, "boards"), {
+                    title, description: desc, accessCode,
+                    teacherId: window.currentUser.uid,
+                    createdAt: Date.now()
                 });
-            } else {
-                renderBoard(); // 로컬 모드
+                closeModal('modal-board-form');
+            } catch (e) { console.error(e); alert("보드 생성 실패"); }
+        }
+
+        window.deleteBoard = async (boardId) => {
+            if(confirm("이 보드와 내부의 모든 게시물이 삭제됩니다. 계속하시겠습니까?")) {
+                await deleteDoc(doc(db, "boards", boardId));
+                // Note: 실제 프로덕션에서는 하위 posts 컬렉션 데이터도 함께 지워주는 로직이 필요할 수 있습니다.
             }
         }
 
-        window.renderBoard = () => {
-            const container = document.getElementById('board-container');
-            container.innerHTML = '';
+        // --- 3. 보드 작업 공간 (학생 & 교사 공통) ---
+        window.enterTeacherBoard = (id, title, desc, accessCode) => {
+            window.currentBoard = { id, title, description: desc, accessCode };
+            openBoardWorkspace();
+        }
+
+        function openBoardWorkspace() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('dashboard-screen').classList.add('hidden');
+            document.getElementById('board-workspace-container').classList.remove('hidden');
             
-            // 섹션 유무에 따른 레이아웃 결정
-            if (window.boardSections.length > 0) {
-                container.className = 'layout-sectioned';
-                window.boardSections.forEach(sec => {
-                    const secPosts = window.boardPosts.filter(p => p.sectionId === sec.id);
-                    container.appendChild(createSectionElement(sec, secPosts));
-                });
-            } else {
-                container.className = 'layout-freestyle';
-                container.innerHTML = renderPosts(window.boardPosts, 'none');
-                if (window.activeFormSection === 'none') {
-                    container.insertAdjacentHTML('afterbegin', getFormHTML('none'));
-                } else {
-                    container.insertAdjacentHTML('afterbegin', `<div class="card" style="display:flex; justify-content:center; align-items:center; cursor:pointer; min-height:150px; background:rgba(255,255,255,0.5); border: 2px dashed #D1D5DB;" onclick="openForm('none')">+ 새 의견 남기기</div>`);
-                }
-            }
-        }
-
-        function createSectionElement(section, posts) {
-            const div = document.createElement('div');
-            div.className = 'section';
+            document.getElementById('current-board-title').innerText = window.currentBoard.title;
+            document.getElementById('current-board-desc').innerText = window.currentBoard.description || '';
+            document.getElementById('current-user-info').innerText = `${window.currentUser.name} (${window.currentUser.role === 'teacher' ? '교사' : '학생'})`;
             
-            let actionsHtml = '';
-            if (window.currentUser?.role === 'teacher') {
-                actionsHtml = `
-                    <div style="display:flex; gap:10px;">
-                        <button onclick="deleteSection('${section.id}')" style="background:none; border:none; color:white; cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                `;
+            // 학생은 초대 버튼 숨김
+            if (window.currentUser.role === 'student') {
+                document.getElementById('btn-share-invite').style.display = 'none';
+            } else {
+                document.getElementById('btn-share-invite').style.display = 'inline-flex';
             }
 
-            div.innerHTML = `
-                <div class="section-header">
-                    <span class="section-title">${section.title}</span>
-                    ${actionsHtml}
-                </div>
-                <div style="display:flex; flex-direction:column; gap:20px;">
-                    ${window.activeFormSection === section.id ? getFormHTML(section.id) : `<button class="btn-action secondary" style="width:100%; justify-content:center; border: 2px dashed #D1D5DB; background:var(--white);" onclick="openForm('${section.id}')">+ 새 의견 남기기</button>`}
-                    ${renderPosts(posts, section.id)}
-                </div>
-            `;
-            return div;
+            loadPosts();
         }
 
-        function renderPosts(posts, currentSecId) {
-            return posts.map(post => {
-                // 권한 체크: 교사이거나 본인이 작성한 글이면 수정/삭제/이동 가능
-                const canEdit = window.currentUser?.role === 'teacher' || window.currentUser?.uid === post.authorId;
-                
-                let controlsHtml = '';
-                if (canEdit) {
-                    let moveBtn = window.currentUser?.role === 'teacher' && window.boardSections.length > 0 ? `<button onclick="movePost('${post.id}')" title="섹션 이동"><i class="fa-solid fa-arrow-right-arrow-left"></i></button>` : '';
-                    controlsHtml = `
-                        <div class="card-actions">
-                            ${moveBtn}
-                            <button onclick="editPost('${post.id}')" title="수정"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deletePost('${post.id}')" title="삭제"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                    `;
-                }
+        window.goToDashboard = () => {
+            if (window.unsubscribePosts) window.unsubscribePosts();
+            if (window.currentUser.role === 'teacher') {
+                showDashboard();
+            } else {
+                logout(); // 학생은 나가기 누르면 메인으로
+            }
+        }
+
+        // 게시물 불러오기
+        function loadPosts() {
+            if (window.unsubscribePosts) window.unsubscribePosts();
+            const q = query(collection(db, "posts"), where("boardId", "==", window.currentBoard.id), orderBy("createdAt", "desc"));
+            window.unsubscribePosts = onSnapshot(q, (snapshot) => {
+                window.boardPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderPostsUI();
+            });
+        }
+
+        // 자유배치(Freestyle) 형태의 렌더링
+        function renderPostsUI() {
+            const container = document.getElementById('posts-container');
+            container.innerHTML = window.boardPosts.map(post => {
+                const canEdit = window.currentUser.role === 'teacher' || window.currentUser.uid === post.authorId;
+                const controlsHtml = canEdit ? `
+                    <button onclick="deletePost('${post.id}')" style="background:none; border:none; cursor:pointer; color:var(--text-sub);"><i class="fa-solid fa-trash"></i></button>
+                ` : '';
 
                 return `
                     <div class="card" style="background-color: ${post.color || '#FFFFFF'}">
-                        <div class="card-header">
-                            <div>
-                                <div class="card-title">${post.title}</div>
-                                <div class="card-author"><i class="fa-solid fa-user"></i> ${post.authorName}</div>
-                            </div>
-                            ${controlsHtml}
+                        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                            <div class="card-title" style="margin:0;">${post.title}</div>
+                            <div>${controlsHtml}</div>
                         </div>
+                        <div style="font-size:12px; color:var(--text-sub); margin-bottom:10px;"><i class="fa-solid fa-user"></i> ${post.authorName}</div>
                         <div class="card-content">${post.content}</div>
-                        
-                        ${post.imageUrl ? `<img src="${post.imageUrl}" class="media-preview">` : ''}
-                        ${post.fileUrl ? `<a href="${post.fileUrl}" target="_blank" class="attachment-link"><i class="fa-solid fa-paperclip"></i> 첨부파일 다운로드</a>` : ''}
-                        ${post.link ? `<a href="${post.link}" target="_blank" class="attachment-link" style="background:rgba(79,70,229,0.1); color:var(--indigo);"><i class="fa-solid fa-link"></i> ${post.link}</a>` : ''}
                     </div>
                 `;
             }).join('');
+
+            // 작성 폼 항상 첫번째에 추가
+            container.insertAdjacentHTML('afterbegin', getPostFormHTML());
         }
 
-        // --- 폼 UI 및 로직 ---
-        window.openForm = (secId) => { window.activeFormSection = secId; renderBoard(); }
-        window.closeForm = () => { window.activeFormSection = null; renderBoard(); }
-
-        window.getFormHTML = (secId) => {
-            const colorDots = colors.map((c, i) => `<div class="color-dot ${i===0?'active':''}" style="background-color: ${c}" onclick="selectColor(this, '${c}', '${secId}')"></div>`).join('');
-            
+        function getPostFormHTML() {
+            const colorDots = colors.map((c, i) => `<div class="color-dot ${i===0?'active':''}" style="background-color: ${c}" onclick="selectColor(this, '${c}')"></div>`).join('');
             return `
-                <div class="post-form-card" id="form-${secId}">
+                <div class="post-form-card" id="main-post-form">
                     <div class="color-picker">${colorDots}</div>
-                    <input type="hidden" id="color-${secId}" value="#FFFFFF">
-                    <input type="text" class="form-input" id="title-${secId}" placeholder="제목을 입력하세요">
-                    <textarea class="form-input form-textarea" id="content-${secId}" placeholder="내용을 입력하세요"></textarea>
-                    
-                    <div class="form-tools">
-                        <label class="btn-tool"><i class="fa-regular fa-image"></i> 이미지 <input type="file" id="img-${secId}" accept="image/*" class="hidden" onchange="previewFile(this, '${secId}', 'img')"></label>
-                        <label class="btn-tool"><i class="fa-solid fa-paperclip"></i> 파일 <input type="file" id="file-${secId}" class="hidden" onchange="previewFile(this, '${secId}', 'file')"></label>
-                        <button class="btn-tool" onclick="promptLink('${secId}')"><i class="fa-solid fa-link"></i> 링크</button>
-                    </div>
-                    
-                    <div id="preview-${secId}" class="preview-text"></div>
-                    <input type="hidden" id="link-${secId}" value="">
-                    
-                    <div style="display:flex; gap:10px;">
-                        <button class="btn-submit" onclick="submitPost('${secId}')">게시하기</button>
-                        <button class="btn-submit" style="background:#E5E7EB; color:var(--text-main);" onclick="closeForm()">취소</button>
-                    </div>
+                    <input type="hidden" id="post-color" value="#FFFFFF">
+                    <input type="text" class="form-input" id="post-title" placeholder="제목을 입력하세요">
+                    <textarea class="form-input" id="post-content" rows="4" placeholder="내용을 입력하세요" style="resize:none;"></textarea>
+                    <button class="btn-primary" style="width: 100%;" onclick="submitPost()">게시하기</button>
                 </div>
             `;
         }
 
-        window.selectColor = (el, color, secId) => {
+        window.selectColor = (el, color) => {
             const dots = el.parentElement.querySelectorAll('.color-dot');
             dots.forEach(d => d.classList.remove('active'));
             el.classList.add('active');
-            document.getElementById(`color-${secId}`).value = color;
-            document.getElementById(`form-${secId}`).style.backgroundColor = color;
+            document.getElementById('post-color').value = color;
+            document.getElementById('main-post-form').style.backgroundColor = color;
         }
 
-        window.promptLink = (secId) => {
-            const url = prompt("첨부할 링크 URL을 입력하세요:");
-            if (url) {
-                document.getElementById(`link-${secId}`).value = url;
-                document.getElementById(`preview-${secId}`).innerText += `\n[링크 추가됨] ${url}`;
-            }
-        }
-
-        window.previewFile = (input, secId, type) => {
-            if(input.files.length > 0) {
-                const name = input.files[0].name;
-                document.getElementById(`preview-${secId}`).innerText += `\n[${type==='img'?'이미지':'파일'} 선택됨] ${name}`;
-            }
-        }
-
-        // --- Firestore CRUD 로직 ---
-        window.submitPost = async (secId) => {
-            const title = document.getElementById(`title-${secId}`).value;
-            const content = document.getElementById(`content-${secId}`).value;
-            const link = document.getElementById(`link-${secId}`).value;
-            const color = document.getElementById(`color-${secId}`).value;
-            
-            const imgFile = document.getElementById(`img-${secId}`)?.files[0];
-            const attachFile = document.getElementById(`file-${secId}`)?.files[0];
+        window.submitPost = async () => {
+            const title = document.getElementById('post-title').value.trim();
+            const content = document.getElementById('post-content').value.trim();
+            const color = document.getElementById('post-color').value;
 
             if (!title || !content) return alert("제목과 내용을 입력해주세요.");
 
-            const postData = {
-                sectionId: secId,
-                title, content, link, color,
+            await addDoc(collection(db, "posts"), {
+                boardId: window.currentBoard.id,
+                title, content, color,
                 authorId: window.currentUser.uid,
                 authorName: window.currentUser.name,
-                createdAt: Date.now(),
-                imageUrl: null,
-                fileUrl: null
-            };
-
-            // 파일 업로드 처리 (Firebase 연결 시)
-            if (isFirebaseActive) {
-                try {
-                    document.getElementById(`form-${secId}`).style.opacity = '0.5';
-                    if (imgFile) {
-                        const imgRef = ref(storage, `images/${Date.now()}_${imgFile.name}`);
-                        await uploadBytes(imgRef, imgFile);
-                        postData.imageUrl = await getDownloadURL(imgRef);
-                    }
-                    if (attachFile) {
-                        const fileRef = ref(storage, `files/${Date.now()}_${attachFile.name}`);
-                        await uploadBytes(fileRef, attachFile);
-                        postData.fileUrl = await getDownloadURL(fileRef);
-                    }
-                    await addDoc(collection(db, "posts"), postData);
-                } catch (e) {
-                    console.error("업로드 오류", e);
-                    alert("데이터 저장 중 오류가 발생했습니다.");
-                }
-            } else {
-                // 로컬 모드 처리
-                postData.id = Date.now().toString();
-                window.boardPosts.unshift(postData);
-            }
-
-            window.activeFormSection = null;
-            renderBoard();
+                createdAt: Date.now()
+            });
         }
 
         window.deletePost = async (postId) => {
-            if(!confirm("정말 삭제하시겠습니까?")) return;
-            if (isFirebaseActive) {
+            if(confirm("게시물을 삭제하시겠습니까?")) {
                 await deleteDoc(doc(db, "posts", postId));
-            } else {
-                window.boardPosts = window.boardPosts.filter(p => p.id !== postId);
-                renderBoard();
             }
         }
 
-        window.editPost = async (postId) => {
-            const post = window.boardPosts.find(p => p.id === postId);
-            const newContent = prompt("내용 수정:", post.content);
-            if(newContent && newContent !== post.content) {
-                if (isFirebaseActive) {
-                    await updateDoc(doc(db, "posts", postId), { content: newContent });
-                } else {
-                    post.content = newContent;
-                    renderBoard();
-                }
-            }
-        }
-
-        window.movePost = async (postId) => {
-            const secTitles = window.boardSections.map((s, i) => `${i+1}. ${s.title}`).join('\n');
-            const choice = prompt(`이동할 섹션 번호를 입력하세요:\n${secTitles}\n(0 입력 시 자유배치 영역으로 이동)`);
+        // --- 4. 안내창 (QR 및 코드) ---
+        window.showInviteModal = () => {
+            const code = window.currentBoard.accessCode;
+            document.getElementById('display-access-code').innerText = code;
             
-            let newSecId = 'none';
-            if (choice > 0 && choice <= window.boardSections.length) {
-                newSecId = window.boardSections[choice - 1].id;
-            } else if (choice !== '0') return;
-
-            if (isFirebaseActive) {
-                await updateDoc(doc(db, "posts", postId), { sectionId: newSecId });
-            } else {
-                window.boardPosts.find(p => p.id === postId).sectionId = newSecId;
-                renderBoard();
-            }
+            // 현재 주소를 기반으로 짧은 도메인명 표시 (예: tkbell.kr 처럼)
+            document.getElementById('qr-domain-text').innerText = window.location.hostname || "우리반 보드";
+            
+            // 학생이 접속할 다이렉트 링크 구성 (?code=방번호)
+            const directUrl = `${window.location.origin}${window.location.pathname}?code=${code}`;
+            
+            // 구글 Chart API를 이용해 QR코드 이미지 생성
+            document.getElementById('qr-image').src = `https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=${encodeURIComponent(directUrl)}`;
+            
+            document.getElementById('modal-invite').classList.remove('hidden');
         }
 
-        // --- 섹션 관리 (교사 전용) ---
-        window.addSection = () => {
-            const title = prompt("새 섹션 이름:");
-            if (title) {
-                window.boardSections.push({ id: 'sec-' + Date.now(), title });
-                renderBoard();
-            }
+        window.closeModal = (modalId) => {
+            document.getElementById(modalId).classList.add('hidden');
         }
 
-        window.deleteSection = (secId) => {
-            if(confirm("섹션을 삭제하시겠습니까? (내부 글은 삭제되지 않고 자유배치 영역으로 이동합니다)")) {
-                window.boardSections = window.boardSections.filter(s => s.id !== secId);
-                // Firebase 모드일 경우 해당 섹션 글들의 sectionId를 일괄 업데이트해야 하지만, 
-                // 편의상 프론트엔드 렌더링 시 없는 섹션 ID는 자유배치로 처리하거나 로컬에서 처리합니다.
-                window.boardPosts.forEach(p => { if(p.sectionId === secId) p.sectionId = 'none'; });
-                renderBoard();
-            }
+        window.copyDirectLink = () => {
+            const code = window.currentBoard.accessCode;
+            const directUrl = `${window.location.origin}${window.location.pathname}?code=${code}`;
+            navigator.clipboard.writeText(directUrl).then(() => {
+                alert(`학생 배포용 링크가 복사되었습니다.\n${directUrl}`);
+            });
         }
 
+        window.enlargeQR = () => {
+            const imgUrl = document.getElementById('qr-image').src;
+            const newWin = window.open('', '_blank');
+            newWin.document.write(`<body style="display:flex; justify-content:center; align-items:center; height:100vh; margin:0;"><img src="${imgUrl}" style="width:500px; height:500px;"></body>`);
+        }
+
+        // URL 파라미터 체크 로직 (링크 복사해서 들어온 경우 자동 입력)
+        window.onload = () => {
+            const params = new URLSearchParams(window.location.search);
+            if(params.has('code')) {
+                document.getElementById('join-code').value = params.get('code');
+            }
+        };
     </script>
 </body>
 </html>
