@@ -59,6 +59,9 @@
         #board-header { padding: 20px 40px; background: var(--white); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; z-index: 10; flex-wrap: wrap; gap: 15px; }
         #board-workspace { flex: 1; padding: 30px 40px; overflow: auto; }
         
+        .editable-title { transition: color 0.2s; margin-bottom: 4px; display: inline-block; }
+        .editable-title:hover { color: var(--indigo); }
+
         /* 레이아웃: 섹션/자유 모드 */
         .layout-sectioned { display: flex; align-items: flex-start; gap: 30px; min-height: 100%; }
         .section-column { min-width: 360px; max-width: 360px; display: flex; flex-direction: column; gap: 20px; }
@@ -104,7 +107,6 @@
 </head>
 <body>
 
-    <!-- 화면 1: 로그인 -->
     <div id="auth-screen" class="hidden">
         <div class="auth-card">
             <h1>우리반 온라인 보드</h1>
@@ -124,7 +126,6 @@
         </div>
     </div>
 
-    <!-- 화면 2: 대시보드 -->
     <div id="dashboard-screen" class="hidden">
         <div class="dashboard-header">
             <div>
@@ -136,24 +137,19 @@
         <div class="board-grid" id="board-list-container"></div>
     </div>
 
-    <!-- 화면 3: 보드 작업 공간 -->
     <div id="board-workspace-container" class="hidden" style="display: flex; flex-direction: column; height: 100vh;">
         <header id="board-header">
             <div class="board-title-area">
-                <h2 id="current-board-title" style="margin-bottom: 4px;">보드 제목</h2>
+                <h2 id="current-board-title" onclick="editBoardTitle()">보드 제목</h2>
                 <span id="current-user-info" style="font-size: 13px; font-weight: 600; color: var(--text-sub);"></span>
             </div>
             
-            <!-- 상단 액션 영역 -->
             <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                <!-- 상태 뱃지 및 잠금 버튼 (교사만) -->
                 <div id="status-badge" class="badge-lock">🔓 작성 가능</div>
                 <button class="btn-secondary teacher-only" id="btn-toggle-lock" onclick="toggleBoardLock()">보드 잠금</button>
                 
-                <!-- 참여자 보기 (교사만) -->
                 <button class="btn-secondary teacher-only" onclick="showParticipantsModal()"><i class="fa-solid fa-users"></i> 참여자 목록</button>
                 
-                <!-- 기존 관리 버튼들 -->
                 <button class="btn-secondary teacher-only" onclick="addSection()"><i class="fa-solid fa-folder-plus"></i> 섹션 추가</button>
                 <button class="btn-primary teacher-only" onclick="showInviteModal()"><i class="fa-solid fa-user-plus"></i> 학생 초대</button>
                 <button class="btn-secondary" onclick="goToDashboard()"><i class="fa-solid fa-house"></i> 나가기</button>
@@ -162,12 +158,10 @@
 
         <div id="board-workspace">
             <div id="board-render-area">
-                <!-- 렌더링 영역 -->
-            </div>
+                </div>
         </div>
     </div>
 
-    <!-- 모달: 보드 생성 -->
     <div id="modal-board-form" class="modal-overlay hidden">
         <div class="modal-content" style="text-align: left;">
             <button class="btn-close-modal" onclick="closeModal('modal-board-form')"><i class="fa-solid fa-xmark"></i></button>
@@ -180,7 +174,6 @@
         </div>
     </div>
 
-    <!-- 모달: 초대 (QR제거, 간소화) -->
     <div id="modal-invite" class="modal-overlay hidden">
         <div class="modal-content">
             <button class="btn-close-modal" onclick="closeModal('modal-invite')"><i class="fa-solid fa-xmark"></i></button>
@@ -192,7 +185,6 @@
         </div>
     </div>
 
-    <!-- 모달: 참여자 목록 -->
     <div id="modal-participants" class="modal-overlay hidden">
         <div class="modal-content" style="width: 400px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -201,12 +193,10 @@
             </div>
             
             <div id="participants-list-container" style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
-                <!-- JS로 렌더링 -->
-            </div>
+                </div>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -367,7 +357,7 @@
                     accessCode: Math.floor(100000 + Math.random() * 900000).toString(),
                     teacherId: window.currentUser.uid,
                     sections: [{ id: 'sec_' + Date.now(), title: '💡 오늘의 배움' }],
-                    isLocked: false, // 잠금 상태 기본값
+                    isLocked: false, 
                     createdAt: Date.now()
                 });
                 closeModal('modal-board-form');
@@ -394,14 +384,23 @@
             
             document.getElementById('current-user-info').innerText = `${window.currentUser.name} (${window.currentUser.role === 'teacher' ? '교사' : '학생'})`;
             
+            const titleEl = document.getElementById('current-board-title');
+            if (window.currentUser.role === 'teacher') {
+                titleEl.className = 'editable-title';
+                titleEl.title = '클릭하여 보드 제목 수정';
+                titleEl.style.cursor = 'pointer';
+            } else {
+                titleEl.className = '';
+                titleEl.title = '';
+                titleEl.style.cursor = 'default';
+            }
+
             document.querySelectorAll('.teacher-only').forEach(el => {
                 el.style.display = window.currentUser.role === 'teacher' ? 'inline-flex' : 'none';
             });
 
-            // 실시간 접속 기록 (참여자 기능)
             await recordParticipant();
 
-            // 보드 설정 실시간 구독 (잠금 기능)
             if(window.unsubscribeBoard) window.unsubscribeBoard();
             window.unsubscribeBoard = onSnapshot(doc(db, "boards", window.currentBoard.id), (docSnapshot) => {
                 window.currentBoard = { id: docSnapshot.id, ...docSnapshot.data() };
@@ -409,7 +408,6 @@
                 renderBoardLayout(); 
             });
 
-            // 게시물 실시간 구독
             if (window.unsubscribePosts) window.unsubscribePosts();
             window.unsubscribePosts = onSnapshot(query(collection(db, "posts"), where("boardId", "==", window.currentBoard.id)), (snapshot) => {
                 const posts = [];
@@ -419,7 +417,6 @@
                 renderBoardLayout();
             });
 
-            // 참여자 실시간 구독 (교사용)
             if(window.currentUser.role === 'teacher') {
                 if(window.unsubscribeParticipants) window.unsubscribeParticipants();
                 window.unsubscribeParticipants = onSnapshot(query(collection(db, "board_participants"), where("boardId", "==", window.currentBoard.id)), (snapshot) => {
@@ -430,7 +427,6 @@
             }
         }
 
-        // 상단 UI 업데이트 (잠금 상태 반영)
         function updateBoardHeaderUI() {
             document.getElementById('current-board-title').innerText = window.currentBoard.title;
             const badge = document.getElementById('status-badge');
@@ -458,6 +454,18 @@
                 showDashboard();
             } else {
                 logout();
+            }
+        }
+
+        window.editBoardTitle = async () => {
+            if (window.currentUser.role !== 'teacher') return;
+            const newTitle = prompt("보드 제목을 수정하세요:", window.currentBoard.title);
+            if (newTitle && newTitle.trim() !== '' && newTitle !== window.currentBoard.title) {
+                try {
+                    await updateDoc(doc(db, "boards", window.currentBoard.id), { title: newTitle.trim() });
+                } catch (e) {
+                    alert("제목 수정 중 오류가 발생했습니다.");
+                }
             }
         }
 
@@ -514,7 +522,6 @@
             return posts.map(post => {
                 const isAuthor = window.currentUser.uid === post.authorId;
                 const isTeacher = window.currentUser.role === 'teacher';
-                // 잠금 상태면 교사만 수정/삭제 가능, 풀려있으면 본인도 가능
                 const canEditDelete = isTeacher || (canWrite && isAuthor);
                 const canMove = isTeacher && (window.currentBoard.sections || []).length > 0;
 
@@ -589,7 +596,6 @@
                 return;
             }
             
-            // 내림차순 정렬 (최근 입장 먼저)
             const sorted = [...window.activeParticipants].sort((a,b) => b.joinTime - a.joinTime);
             
             container.innerHTML = sorted.map(p => {
@@ -690,7 +696,7 @@
             } catch (e) { alert("게시물 업로드 중 오류가 발생했습니다."); }
         }
 
-        // --- 8. 게시물 및 섹션 제어 (기존 동일) ---
+        // --- 8. 게시물 및 섹션 제어 ---
         window.deletePost = async (postId) => { if(confirm("삭제하시겠습니까?")) await deleteDoc(doc(db, "posts", postId)); }
         window.editPost = async (postId) => {
             const post = window.boardPosts.find(p => p.id === postId);
@@ -728,7 +734,7 @@
             for (let p of targetPosts) await updateDoc(doc(db, "posts", p.id), { sectionId: 'none' });
         }
 
-        // --- 9. 모달창 제어 (초대창 포함) ---
+        // --- 9. 모달창 제어 ---
         window.showInviteModal = () => {
             document.getElementById('display-access-code').innerText = window.currentBoard.accessCode;
             document.getElementById('modal-invite').classList.remove('hidden');
