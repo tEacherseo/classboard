@@ -252,7 +252,9 @@
         }
 
         function loadTeacherBoards() {
-            const q = query(collection(db, "boards"), where("teacherId", "==", window.currentUser.uid), orderBy("createdAt", "desc"));
+            // orderBy를 빼서 Firebase의 복합 색인 에러를 방지합니다.
+            const q = query(collection(db, "boards"), where("teacherId", "==", window.currentUser.uid));
+            
             onSnapshot(q, (snapshot) => {
                 const container = document.getElementById('board-list-container');
                 // 새 보드 만들기 버튼 유지
@@ -263,21 +265,31 @@
                     </div>
                 `;
 
+                // 데이터를 배열로 모은 뒤 자바스크립트에서 최신순(내림차순)으로 직접 정렬합니다.
+                const boards = [];
                 snapshot.forEach(doc => {
-                    const b = doc.data();
+                    boards.push({ id: doc.id, ...doc.data() });
+                });
+                
+                boards.sort((a, b) => b.createdAt - a.createdAt);
+
+                // 정렬된 배열을 화면에 렌더링합니다.
+                boards.forEach(b => {
                     container.innerHTML += `
-                        <div class="board-card" onclick="enterTeacherBoard('${doc.id}', '${b.title}', '${b.description}', '${b.accessCode}')">
+                        <div class="board-card" onclick="enterTeacherBoard('${b.id}', '${b.title}', '${b.description}', '${b.accessCode}')">
                             <div>
                                 <div class="board-card-title">${b.title}</div>
                                 <div class="board-card-desc">${b.description || '설명이 없습니다.'}</div>
                             </div>
                             <div class="board-card-footer">
                                 <span class="badge-code">방번호: ${b.accessCode}</span>
-                                <button onclick="event.stopPropagation(); deleteBoard('${doc.id}')" style="background:none; border:none; cursor:pointer; color:var(--text-sub);"><i class="fa-solid fa-trash"></i></button>
+                                <button onclick="event.stopPropagation(); deleteBoard('${b.id}')" style="background:none; border:none; cursor:pointer; color:var(--text-sub);"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </div>
                     `;
                 });
+            }, (error) => {
+                console.error("보드 목록을 불러오는 중 에러 발생:", error);
             });
         }
 
