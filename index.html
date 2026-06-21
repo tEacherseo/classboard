@@ -25,9 +25,9 @@
         body { background-color: var(--bg-color); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
         /* 공통 UI 요소 */
-        .btn-primary { background: var(--indigo); color: white; border: none; padding: 12px 20px; border-radius: var(--radius-md); cursor: pointer; font-weight: 700; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; justify-content: center; }
+        .btn-primary { background: var(--indigo); color: white; border: none; padding: 10px 18px; border-radius: var(--radius-md); cursor: pointer; font-weight: 700; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; justify-content: center; font-size: 14px; }
         .btn-primary:hover { background: var(--indigo-dark); }
-        .btn-secondary { background: var(--white); color: var(--text-main); border: 1px solid var(--border-color); padding: 12px 20px; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; justify-content: center; }
+        .btn-secondary { background: var(--white); color: var(--text-main); border: 1px solid var(--border-color); padding: 10px 18px; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; justify-content: center; font-size: 14px; }
         .btn-secondary:hover { background: #F9FAFB; }
         .form-input { width: 100%; background: var(--lavender-gray); border: 1px solid transparent; border-radius: var(--radius-md); padding: 14px; font-size: 15px; margin-bottom: 12px; transition: 0.2s; }
         .form-input:focus { outline: none; border-color: var(--indigo); background: var(--white); }
@@ -56,21 +56,17 @@
         .board-card-footer { border-top: 1px solid #F3F4F6; padding-top: 15px; margin-top: 15px; display: flex; justify-content: space-between; align-items: center; }
 
         /* 화면 3: 개별 보드 작업 공간 */
-        #board-header { padding: 20px 40px; background: var(--white); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+        #board-header { padding: 20px 40px; background: var(--white); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; z-index: 10; flex-wrap: wrap; gap: 15px; }
         #board-workspace { flex: 1; padding: 30px 40px; overflow: auto; }
         
-        /* 레이아웃: 섹션 모드 (세로 컬럼) */
+        /* 레이아웃: 섹션/자유 모드 */
         .layout-sectioned { display: flex; align-items: flex-start; gap: 30px; min-height: 100%; }
         .section-column { min-width: 360px; max-width: 360px; display: flex; flex-direction: column; gap: 20px; }
         .section-header { background: var(--indigo); color: white; padding: 15px 20px; border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2); }
-        .section-actions button { background: none; border: none; color: white; cursor: pointer; opacity: 0.8; margin-left: 10px; }
-        .section-actions button:hover { opacity: 1; }
-        
-        /* 레이아웃: 자유 모드 (Masonry 느낌) */
         .layout-freestyle { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 20px; }
         .layout-freestyle .card, .layout-freestyle .post-form-wrapper { width: calc(33.333% - 14px); min-width: 300px; }
 
-        /* 게시물 카드 */
+        /* 게시물 카드 & 입력 폼 */
         .card { background: var(--white); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px; }
         .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
         .card-title { font-weight: 700; font-size: 17px; margin: 0; }
@@ -78,9 +74,7 @@
         .card-content { font-size: 15px; line-height: 1.5; white-space: pre-wrap; }
         .media-preview { width: 100%; border-radius: 8px; object-fit: cover; max-height: 250px; margin-top: 10px; }
         .attachment-link { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px; text-decoration: none; font-size: 13px; color: var(--text-main); font-weight: 600; word-break: break-all; margin-top: 5px; }
-        .attachment-link i { color: var(--indigo); }
-
-        /* 입력 폼 */
+        
         .post-form-card { border: 2px solid var(--indigo); border-radius: var(--radius-lg); padding: 20px; background: var(--white); box-shadow: var(--shadow); }
         .color-picker { display: flex; gap: 8px; margin-bottom: 15px; }
         .color-dot { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
@@ -88,23 +82,29 @@
         .form-tools { display: flex; gap: 8px; margin-bottom: 15px; }
         .btn-tool { background: var(--lavender-gray); color: var(--text-main); padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
         .btn-tool:hover { background: #E5E7EB; }
-        .preview-area { font-size: 12px; color: var(--indigo); margin-bottom: 10px; word-break: break-all; }
 
-        /* 모달창 */
+        /* 모달창 디자인 */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(4px); }
         .modal-content { background: var(--white); padding: 40px; border-radius: 24px; width: 450px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1); position: relative; }
         .btn-close-modal { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 20px; color: var(--text-sub); cursor: pointer; }
-        .qr-domain { font-size: 24px; font-weight: 800; color: #D95D39; margin-bottom: 5px; }
-        .qr-subtitle { font-size: 18px; font-weight: 700; color: var(--text-main); margin-bottom: 15px; }
-        .qr-code-text { font-size: 64px; font-weight: 900; color: #5B63F5; line-height: 1; margin-bottom: 25px; letter-spacing: 2px; }
-        .qr-image-wrapper { background: white; padding: 15px; border-radius: 12px; display: inline-block; border: 1px solid var(--border-color); margin-bottom: 25px; }
-        .qr-actions { display: flex; gap: 15px; justify-content: center; }
-        .qr-actions button { flex: 1; padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--white); font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.2s; }
-        .qr-actions button:hover { background: #F9FAFB; border-color: #D1D5DB; }
+        
+        .qr-domain { font-size: 22px; font-weight: 800; color: #D95D39; margin-bottom: 5px; }
+        .qr-subtitle { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 15px; }
+        .qr-code-text { font-size: 72px; font-weight: 900; color: #5B63F5; line-height: 1; margin-bottom: 35px; letter-spacing: 2px; }
+
+        /* 참여자 목록 카드 스타일 */
+        .participant-card { border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; margin-bottom: 10px; text-align: left; background: var(--white); }
+        .participant-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; color: var(--text-main); }
+        .participant-detail { font-size: 13px; color: var(--text-sub); margin-bottom: 4px; }
+        
+        /* 잠금 뱃지 스타일 */
+        .badge-lock { background: var(--lavender-gray); color: var(--indigo); padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; }
+        .badge-locked { background: #FEE2E2; color: #DC2626; }
     </style>
 </head>
 <body>
 
+    <!-- 화면 1: 로그인 -->
     <div id="auth-screen" class="hidden">
         <div class="auth-card">
             <h1>우리반 온라인 보드</h1>
@@ -124,6 +124,7 @@
         </div>
     </div>
 
+    <!-- 화면 2: 대시보드 -->
     <div id="dashboard-screen" class="hidden">
         <div class="dashboard-header">
             <div>
@@ -135,26 +136,38 @@
         <div class="board-grid" id="board-list-container"></div>
     </div>
 
+    <!-- 화면 3: 보드 작업 공간 -->
     <div id="board-workspace-container" class="hidden" style="display: flex; flex-direction: column; height: 100vh;">
         <header id="board-header">
             <div class="board-title-area">
-                <h2 id="current-board-title">보드 제목</h2>
-                <p id="current-board-desc">보드 설명</p>
+                <h2 id="current-board-title" style="margin-bottom: 4px;">보드 제목</h2>
+                <span id="current-user-info" style="font-size: 13px; font-weight: 600; color: var(--text-sub);"></span>
             </div>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <span id="current-user-info" style="font-size: 14px; font-weight: 600; color: var(--text-sub); margin-right: 15px;"></span>
+            
+            <!-- 상단 액션 영역 -->
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <!-- 상태 뱃지 및 잠금 버튼 (교사만) -->
+                <div id="status-badge" class="badge-lock">🔓 작성 가능</div>
+                <button class="btn-secondary teacher-only" id="btn-toggle-lock" onclick="toggleBoardLock()">보드 잠금</button>
+                
+                <!-- 참여자 보기 (교사만) -->
+                <button class="btn-secondary teacher-only" onclick="showParticipantsModal()"><i class="fa-solid fa-users"></i> 참여자 목록</button>
+                
+                <!-- 기존 관리 버튼들 -->
                 <button class="btn-secondary teacher-only" onclick="addSection()"><i class="fa-solid fa-folder-plus"></i> 섹션 추가</button>
-                <button class="btn-primary teacher-only" id="btn-share-invite" onclick="showInviteModal()"><i class="fa-solid fa-qrcode"></i> 학생 초대</button>
+                <button class="btn-primary teacher-only" onclick="showInviteModal()"><i class="fa-solid fa-user-plus"></i> 학생 초대</button>
                 <button class="btn-secondary" onclick="goToDashboard()"><i class="fa-solid fa-house"></i> 나가기</button>
             </div>
         </header>
 
         <div id="board-workspace">
             <div id="board-render-area">
-                </div>
+                <!-- 렌더링 영역 -->
+            </div>
         </div>
     </div>
 
+    <!-- 모달: 보드 생성 -->
     <div id="modal-board-form" class="modal-overlay hidden">
         <div class="modal-content" style="text-align: left;">
             <button class="btn-close-modal" onclick="closeModal('modal-board-form')"><i class="fa-solid fa-xmark"></i></button>
@@ -167,26 +180,37 @@
         </div>
     </div>
 
+    <!-- 모달: 초대 (QR제거, 간소화) -->
     <div id="modal-invite" class="modal-overlay hidden">
         <div class="modal-content">
             <button class="btn-close-modal" onclick="closeModal('modal-invite')"><i class="fa-solid fa-xmark"></i></button>
-            <div class="qr-domain" id="qr-domain-text">우리반 온라인 보드</div>
+            <div class="qr-domain">2board.netlify.app</div>
             <div class="qr-subtitle">접속 후 방번호 입력</div>
             <div class="qr-code-text" id="display-access-code">000000</div>
-            <div class="qr-image-wrapper">
-                <img id="qr-image" src="" alt="QR Code" width="180" height="180">
+            
+            <button class="btn-secondary" style="width: 100%; padding: 15px;" onclick="copyDirectLink()">링크 복사</button>
+        </div>
+    </div>
+
+    <!-- 모달: 참여자 목록 -->
+    <div id="modal-participants" class="modal-overlay hidden">
+        <div class="modal-content" style="width: 400px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="font-size: 20px; font-weight: 800; margin: 0;">참여자 목록</h2>
+                <button class="btn-secondary" style="padding: 6px 12px; font-size: 13px;" onclick="closeModal('modal-participants')">닫기</button>
             </div>
-            <div class="qr-actions">
-                <button onclick="enlargeQR()">QR 크게 보기</button>
-                <button onclick="copyDirectLink()">링크 복사</button>
+            
+            <div id="participants-list-container" style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
+                <!-- JS로 렌더링 -->
             </div>
         </div>
     </div>
 
+    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, setDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
         const firebaseConfig = {
@@ -206,50 +230,41 @@
         window.currentUser = null;
         window.currentBoard = null;
         window.boardPosts = [];
+        window.activeParticipants = [];
         window.unsubscribePosts = null;
         window.unsubscribeBoard = null;
+        window.unsubscribeParticipants = null;
         window.activeFormSectionId = null;
 
-        // 수정된 컬러 팔레트 (흰색, 조금 더 진한 분홍, 노랑, 파랑, 초록, 보라)
+        // 수정된 진한 파스텔톤 6색
         const colors = ['#FFFFFF', '#F48FB1', '#FFF59D', '#90CAF9', '#A5D6A7', '#CE93D8'];
 
-        // --- 0. 새로고침 세션 복구 (핵심 수정) ---
+        // --- 0. 접속 관리 및 초기화 ---
         window.onload = () => {
             const params = new URLSearchParams(window.location.search);
             if(params.has('code')) document.getElementById('join-code').value = params.get('code');
 
-            // Firebase Auth 상태 변화 감지 (선생님 로그인 유지)
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
-                    // 선생님 로그인 상태 복구
-                    window.currentUser = { uid: user.uid, name: user.displayName, role: 'teacher' };
+                    window.currentUser = { uid: user.uid, name: user.displayName, email: user.email, role: 'teacher' };
                     const savedBoardId = sessionStorage.getItem('currentBoardId');
-                    
-                    if (savedBoardId) {
-                        await restoreBoard(savedBoardId);
-                    } else {
-                        showDashboard();
-                    }
+                    if (savedBoardId) await restoreBoard(savedBoardId);
+                    else showDashboard();
                 } else {
-                    // 선생님 로그인이 풀려있다면 학생 세션스토리지 확인
                     const studentData = sessionStorage.getItem('studentInfo');
                     if (studentData) {
                         const parsed = JSON.parse(studentData);
                         window.currentUser = { uid: parsed.uid, name: parsed.name, role: 'student' };
-                        
-                        // 기존 방번호로 데이터베이스 재조회
                         const q = query(collection(db, "boards"), where("accessCode", "==", parsed.code));
                         const snap = await getDocs(q);
                         if (!snap.empty) {
-                            const boardData = snap.docs[0];
-                            window.currentBoard = { id: boardData.id, ...boardData.data() };
+                            window.currentBoard = { id: snap.docs[0].id, ...snap.docs[0].data() };
                             openBoardWorkspace();
                         } else {
                             sessionStorage.clear();
                             document.getElementById('auth-screen').classList.remove('hidden');
                         }
                     } else {
-                        // 아무 정보도 없으면 로그인 화면 표시
                         document.getElementById('auth-screen').classList.remove('hidden');
                     }
                 }
@@ -268,13 +283,18 @@
             }
         }
 
+        // 브라우저 종료/새로고침 시 접속 기록 삭제 시도
+        window.addEventListener('beforeunload', () => {
+            if(window.currentUser && window.currentBoard) {
+                const pRef = doc(db, "board_participants", `${window.currentUser.uid}_${window.currentBoard.id}`);
+                deleteDoc(pRef).catch(()=>{});
+            }
+        });
 
-        // --- 1. 로그인 (수동) ---
+        // --- 1. 로그인 ---
         window.teacherLogin = async () => {
-            try {
-                // signInWithPopup 성공 시 위 onAuthStateChanged가 자동으로 실행되므로 추가 코드 불필요
-                await signInWithPopup(auth, new GoogleAuthProvider());
-            } catch (error) { console.error(error); alert("로그인 실패"); }
+            try { await signInWithPopup(auth, new GoogleAuthProvider()); } 
+            catch (error) { alert("로그인 실패"); }
         }
 
         window.studentJoin = async () => {
@@ -286,17 +306,15 @@
             const snap = await getDocs(q);
             if (snap.empty) return alert("해당 방번호를 가진 보드를 찾을 수 없습니다.");
 
-            const boardData = snap.docs[0];
-            window.currentBoard = { id: boardData.id, ...boardData.data() };
+            window.currentBoard = { id: snap.docs[0].id, ...snap.docs[0].data() };
             window.currentUser = { uid: 'stu_' + Date.now(), name: name, role: 'student' };
-            
-            // 학생 세션 정보 저장
             sessionStorage.setItem('studentInfo', JSON.stringify({ uid: window.currentUser.uid, name: name, code: code }));
             
             openBoardWorkspace();
         }
 
         window.logout = async () => {
+            await removeParticipantRecord();
             sessionStorage.clear();
             if (window.currentUser?.role === 'teacher') await signOut(auth);
             window.currentUser = null;
@@ -324,7 +342,7 @@
                         <div class="board-card" onclick="enterTeacherBoard('${b.id}')">
                             <div><div class="board-card-title">${b.title}</div><div class="board-card-desc">${b.description || ''}</div></div>
                             <div class="board-card-footer">
-                                <span class="badge-code" style="background: var(--lavender-gray); color: var(--indigo); padding: 4px 10px; border-radius: 20px; font-weight: 700;">방번호: ${b.accessCode}</span>
+                                <span class="badge-lock" style="padding:4px 10px; font-size:13px;">방번호: ${b.accessCode}</span>
                                 <button onclick="event.stopPropagation(); deleteBoard('${b.id}')" style="background:none; border:none; cursor:pointer; color:var(--text-sub);"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </div>`;
@@ -343,14 +361,13 @@
             const desc = document.getElementById('new-board-desc').value.trim();
             if (!title) return alert("제목을 입력하세요.");
             
-            const initialSections = [{ id: 'sec_' + Date.now(), title: '💡 오늘의 배움' }];
-
             try {
                 await addDoc(collection(db, "boards"), {
                     title, description: desc, 
                     accessCode: Math.floor(100000 + Math.random() * 900000).toString(),
                     teacherId: window.currentUser.uid,
-                    sections: initialSections,
+                    sections: [{ id: 'sec_' + Date.now(), title: '💡 오늘의 배움' }],
+                    isLocked: false, // 잠금 상태 기본값
                     createdAt: Date.now()
                 });
                 closeModal('modal-board-form');
@@ -361,36 +378,38 @@
             if(confirm("보드를 삭제하시겠습니까?")) await deleteDoc(doc(db, "boards", boardId));
         }
 
-        // --- 3. 보드 작업 공간 및 게시물 관리 ---
+        // --- 3. 보드 진입 및 실시간 관리 ---
         window.enterTeacherBoard = async (boardId) => {
             const snap = await getDocs(query(collection(db, "boards")));
             const docData = snap.docs.find(d => d.id === boardId);
             window.currentBoard = { id: docData.id, ...docData.data() };
-            
-            // 교사가 진입한 보드 기억 (새로고침 방어)
             sessionStorage.setItem('currentBoardId', docData.id);
             openBoardWorkspace();
         }
 
-        function openBoardWorkspace() {
+        async function openBoardWorkspace() {
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('dashboard-screen').classList.add('hidden');
             document.getElementById('board-workspace-container').classList.remove('hidden');
             
-            document.getElementById('current-board-title').innerText = window.currentBoard.title;
-            document.getElementById('current-board-desc').innerText = window.currentBoard.description || '';
             document.getElementById('current-user-info').innerText = `${window.currentUser.name} (${window.currentUser.role === 'teacher' ? '교사' : '학생'})`;
             
             document.querySelectorAll('.teacher-only').forEach(el => {
                 el.style.display = window.currentUser.role === 'teacher' ? 'inline-flex' : 'none';
             });
 
+            // 실시간 접속 기록 (참여자 기능)
+            await recordParticipant();
+
+            // 보드 설정 실시간 구독 (잠금 기능)
             if(window.unsubscribeBoard) window.unsubscribeBoard();
             window.unsubscribeBoard = onSnapshot(doc(db, "boards", window.currentBoard.id), (docSnapshot) => {
                 window.currentBoard = { id: docSnapshot.id, ...docSnapshot.data() };
+                updateBoardHeaderUI();
                 renderBoardLayout(); 
             });
 
+            // 게시물 실시간 구독
             if (window.unsubscribePosts) window.unsubscribePosts();
             window.unsubscribePosts = onSnapshot(query(collection(db, "posts"), where("boardId", "==", window.currentBoard.id)), (snapshot) => {
                 const posts = [];
@@ -399,11 +418,40 @@
                 window.boardPosts = posts;
                 renderBoardLayout();
             });
+
+            // 참여자 실시간 구독 (교사용)
+            if(window.currentUser.role === 'teacher') {
+                if(window.unsubscribeParticipants) window.unsubscribeParticipants();
+                window.unsubscribeParticipants = onSnapshot(query(collection(db, "board_participants"), where("boardId", "==", window.currentBoard.id)), (snapshot) => {
+                    window.activeParticipants = [];
+                    snapshot.forEach(d => window.activeParticipants.push(d.data()));
+                    renderParticipantsList();
+                });
+            }
         }
 
-        window.goToDashboard = () => {
+        // 상단 UI 업데이트 (잠금 상태 반영)
+        function updateBoardHeaderUI() {
+            document.getElementById('current-board-title').innerText = window.currentBoard.title;
+            const badge = document.getElementById('status-badge');
+            const toggleBtn = document.getElementById('btn-toggle-lock');
+            
+            if (window.currentBoard.isLocked) {
+                badge.innerText = '🔒 보드 잠금됨';
+                badge.className = 'badge-lock badge-locked';
+                toggleBtn.innerText = '보드 해제';
+            } else {
+                badge.innerText = '🔓 작성 가능';
+                badge.className = 'badge-lock';
+                toggleBtn.innerText = '보드 잠금';
+            }
+        }
+
+        window.goToDashboard = async () => {
+            await removeParticipantRecord();
             if (window.unsubscribePosts) window.unsubscribePosts();
             if (window.unsubscribeBoard) window.unsubscribeBoard();
+            if (window.unsubscribeParticipants) window.unsubscribeParticipants();
             
             if (window.currentUser.role === 'teacher') {
                 sessionStorage.removeItem('currentBoardId');
@@ -413,55 +461,61 @@
             }
         }
 
-        // --- 4. 섹션 vs 자유형 레이아웃 렌더링 ---
+        // --- 4. 렌더링 (잠금 상태 적용) ---
         function renderBoardLayout() {
             const container = document.getElementById('board-render-area');
             container.innerHTML = '';
             
             const sections = window.currentBoard.sections || [];
+            const isLocked = window.currentBoard.isLocked === true;
+            const canWrite = !isLocked || window.currentUser.role === 'teacher';
 
             if (sections.length > 0) {
                 container.className = 'layout-sectioned';
                 sections.forEach(sec => {
                     const secPosts = window.boardPosts.filter(p => p.sectionId === sec.id);
-                    
                     const colDiv = document.createElement('div');
                     colDiv.className = 'section-column';
                     
                     let teacherActions = window.currentUser.role === 'teacher' ? `
                         <div class="section-actions">
-                            <button onclick="editSection('${sec.id}')" title="이름 수정"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteSection('${sec.id}')" title="삭제"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                    ` : '';
+                            <button onclick="editSection('${sec.id}')"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteSection('${sec.id}')"><i class="fa-solid fa-trash"></i></button>
+                        </div>` : '';
+
+                    let formAreaHtml = '';
+                    if (canWrite) {
+                        formAreaHtml = window.activeFormSectionId === sec.id 
+                            ? getPostFormHTML(sec.id) 
+                            : `<button class="btn-secondary" style="width:100%; border:2px dashed #D1D5DB;" onclick="openForm('${sec.id}')">+ 새 의견 남기기</button>`;
+                    }
 
                     colDiv.innerHTML = `
-                        <div class="section-header">
-                            <span style="font-weight:700; font-size:16px;">${sec.title}</span>
-                            ${teacherActions}
-                        </div>
-                        <div style="display:flex; flex-direction:column; gap:15px;" id="sec-content-${sec.id}">
-                            ${window.activeFormSectionId === sec.id ? getPostFormHTML(sec.id) : `<button class="btn-secondary" style="width:100%; border:2px dashed #D1D5DB;" onclick="openForm('${sec.id}')">+ 새 의견 남기기</button>`}
-                            ${renderPostsHTML(secPosts)}
-                        </div>
-                    `;
+                        <div class="section-header"><span style="font-weight:700; font-size:16px;">${sec.title}</span>${teacherActions}</div>
+                        <div style="display:flex; flex-direction:column; gap:15px;">
+                            ${formAreaHtml}
+                            ${renderPostsHTML(secPosts, canWrite)}
+                        </div>`;
                     container.appendChild(colDiv);
                 });
             } else {
                 container.className = 'layout-freestyle';
-                const allPosts = window.boardPosts; 
-                
-                const addBtnHtml = window.activeFormSectionId === 'freestyle' ? getPostFormHTML('freestyle') : `<div class="post-form-wrapper"><button class="btn-secondary" style="width:100%; height:100px; border:2px dashed #D1D5DB;" onclick="openForm('freestyle')">+ 새 게시물 추가</button></div>`;
-                
-                container.innerHTML = addBtnHtml + renderPostsHTML(allPosts);
+                let addBtnHtml = '';
+                if (canWrite) {
+                    addBtnHtml = window.activeFormSectionId === 'freestyle' 
+                        ? getPostFormHTML('freestyle') 
+                        : `<div class="post-form-wrapper"><button class="btn-secondary" style="width:100%; height:100px; border:2px dashed #D1D5DB;" onclick="openForm('freestyle')">+ 새 게시물 추가</button></div>`;
+                }
+                container.innerHTML = addBtnHtml + renderPostsHTML(window.boardPosts, canWrite);
             }
         }
 
-        function renderPostsHTML(posts) {
+        function renderPostsHTML(posts, canWrite) {
             return posts.map(post => {
                 const isAuthor = window.currentUser.uid === post.authorId;
                 const isTeacher = window.currentUser.role === 'teacher';
-                const canEditDelete = isAuthor || isTeacher;
+                // 잠금 상태면 교사만 수정/삭제 가능, 풀려있으면 본인도 가능
+                const canEditDelete = isTeacher || (canWrite && isAuthor);
                 const canMove = isTeacher && (window.currentBoard.sections || []).length > 0;
 
                 let controls = '';
@@ -482,15 +536,76 @@
                         <div class="card-author"><i class="fa-solid fa-user"></i> ${post.authorName}</div>
                         <div class="card-content">${post.content}</div>
                         
-                        ${post.imageUrl ? `<img src="${post.imageUrl}" class="media-preview" alt="첨부 이미지">` : ''}
-                        ${post.fileUrl ? `<a href="${post.fileUrl}" target="_blank" class="attachment-link"><i class="fa-solid fa-file-arrow-down"></i> 첨부파일 보기/다운로드</a>` : ''}
-                        ${post.link ? `<a href="${post.link}" target="_blank" class="attachment-link"><i class="fa-solid fa-link"></i> ${post.link}</a>` : ''}
+                        ${post.imageUrl ? `<img src="${post.imageUrl}" class="media-preview">` : ''}
+                        ${post.fileUrl ? `<a href="${post.fileUrl}" target="_blank" class="attachment-link"><i class="fa-solid fa-file-arrow-down"></i> 첨부파일 보기</a>` : ''}
+                        ${post.link ? `<a href="${post.link}" target="_blank" class="attachment-link" style="background:rgba(79,70,229,0.1); color:var(--indigo);"><i class="fa-solid fa-link"></i> ${post.link}</a>` : ''}
                     </div>
                 `;
             }).join('');
         }
 
-        // --- 5. 게시물 입력 폼 및 업로드 처리 ---
+        // --- 5. 보드 잠금 관리 ---
+        window.toggleBoardLock = async () => {
+            const newState = !window.currentBoard.isLocked;
+            await updateDoc(doc(db, "boards", window.currentBoard.id), { isLocked: newState });
+        }
+
+        // --- 6. 참여자 관리 로직 ---
+        async function recordParticipant() {
+            const pRef = doc(db, "board_participants", `${window.currentUser.uid}_${window.currentBoard.id}`);
+            await setDoc(pRef, {
+                boardId: window.currentBoard.id,
+                uid: window.currentUser.uid,
+                name: window.currentUser.name,
+                email: window.currentUser.email || '',
+                role: window.currentUser.role,
+                joinTime: Date.now()
+            });
+        }
+        
+        async function removeParticipantRecord() {
+            if(window.currentUser && window.currentBoard) {
+                const pRef = doc(db, "board_participants", `${window.currentUser.uid}_${window.currentBoard.id}`);
+                await deleteDoc(pRef).catch(()=>{});
+            }
+        }
+
+        window.showParticipantsModal = () => {
+            renderParticipantsList();
+            document.getElementById('modal-participants').classList.remove('hidden');
+        }
+
+        function formatTimeAgo(ms) {
+            const diff = Math.floor((Date.now() - ms) / 60000);
+            if (diff < 1) return '방금 전';
+            if (diff < 60) return `${diff}분 전`;
+            return `${Math.floor(diff/60)}시간 전`;
+        }
+
+        function renderParticipantsList() {
+            const container = document.getElementById('participants-list-container');
+            if(window.activeParticipants.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-sub); text-align:center;">참여자가 없습니다.</p>';
+                return;
+            }
+            
+            // 내림차순 정렬 (최근 입장 먼저)
+            const sorted = [...window.activeParticipants].sort((a,b) => b.joinTime - a.joinTime);
+            
+            container.innerHTML = sorted.map(p => {
+                const icon = p.role === 'teacher' ? '👩‍🏫' : '🧑‍🎓';
+                const emailHtml = p.email ? `<div class="participant-detail">${p.email}</div>` : '';
+                return `
+                    <div class="participant-card">
+                        <div class="participant-name">${p.name} ${icon}</div>
+                        ${emailHtml}
+                        <div class="participant-detail">입장: ${formatTimeAgo(p.joinTime)}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- 7. 게시물 작성 및 파일 업로드 ---
         window.openForm = (secId) => { window.activeFormSectionId = secId; renderBoardLayout(); }
         window.closeForm = () => { window.activeFormSectionId = null; renderBoardLayout(); }
 
@@ -510,7 +625,7 @@
                             <button class="btn-tool" onclick="promptLink('${secId}')"><i class="fa-solid fa-link"></i> 링크</button>
                         </div>
                         
-                        <div id="preview-${secId}" class="preview-area"></div>
+                        <div id="preview-${secId}" style="font-size: 12px; color: var(--indigo); margin-bottom: 10px;"></div>
                         <input type="hidden" id="link-${secId}" value="">
                         
                         <div style="display:flex; gap:10px;">
@@ -530,19 +645,16 @@
             document.getElementById(`form-${secId}`).style.backgroundColor = color;
         }
         window.promptLink = (secId) => {
-            const url = prompt("첨부할 링크를 입력하세요 (예: https://...):");
+            const url = prompt("첨부할 링크를 입력하세요:");
             if (url) { document.getElementById(`link-${secId}`).value = url; previewText(secId, `링크 첨부됨: ${url}`); }
         }
-        window.previewText = (secId, text) => {
-            document.getElementById(`preview-${secId}`).innerText += `\n✓ ${text}`;
-        }
+        window.previewText = (secId, text) => { document.getElementById(`preview-${secId}`).innerText += `\n✓ ${text}`; }
 
         window.submitPost = async (secId) => {
             const title = document.getElementById(`title-${secId}`).value.trim();
             const content = document.getElementById(`content-${secId}`).value.trim();
             const color = document.getElementById(`color-${secId}`).value;
             const link = document.getElementById(`link-${secId}`).value;
-            
             const imgFile = document.getElementById(`img-${secId}`)?.files[0];
             const attachFile = document.getElementById(`file-${secId}`)?.files[0];
 
@@ -575,93 +687,56 @@
                 await addDoc(collection(db, "posts"), postData);
                 window.activeFormSectionId = null;
                 renderBoardLayout();
-            } catch (e) { console.error(e); alert("게시물 업로드 중 오류가 발생했습니다."); }
+            } catch (e) { alert("게시물 업로드 중 오류가 발생했습니다."); }
         }
 
-        // --- 6. 게시물 액션 (수정, 삭제, 이동) ---
-        window.deletePost = async (postId) => {
-            if(confirm("이 게시물을 완전히 삭제하시겠습니까?")) await deleteDoc(doc(db, "posts", postId));
-        }
-
+        // --- 8. 게시물 및 섹션 제어 (기존 동일) ---
+        window.deletePost = async (postId) => { if(confirm("삭제하시겠습니까?")) await deleteDoc(doc(db, "posts", postId)); }
         window.editPost = async (postId) => {
             const post = window.boardPosts.find(p => p.id === postId);
             const newTitle = prompt("제목 수정:", post.title);
             const newContent = prompt("내용 수정:", post.content);
-            if (newTitle && newContent) {
-                await updateDoc(doc(db, "posts", postId), { title: newTitle, content: newContent });
-            }
+            if (newTitle && newContent) await updateDoc(doc(db, "posts", postId), { title: newTitle, content: newContent });
         }
-
         window.movePost = async (postId) => {
             const sections = window.currentBoard.sections || [];
-            let promptText = "이동할 섹션 번호를 입력하세요:\n";
-            sections.forEach((s, idx) => promptText += `${idx + 1}. ${s.title}\n`);
-            
-            const choice = prompt(promptText);
+            let pText = "이동할 섹션 번호를 입력하세요:\n";
+            sections.forEach((s, idx) => pText += `${idx + 1}. ${s.title}\n`);
+            const choice = prompt(pText);
             const secIdx = parseInt(choice) - 1;
-            
-            if (secIdx >= 0 && secIdx < sections.length) {
-                await updateDoc(doc(db, "posts", postId), { sectionId: sections[secIdx].id });
-            } else if (choice) {
-                alert("잘못된 번호입니다.");
-            }
+            if (secIdx >= 0 && secIdx < sections.length) await updateDoc(doc(db, "posts", postId), { sectionId: sections[secIdx].id });
         }
 
-        // --- 7. 섹션 관리 (교사 전용) ---
         window.addSection = async () => {
-            const title = prompt("새로 추가할 섹션 이름을 입력하세요:");
-            if (!title) return;
-
-            const newSection = { id: 'sec_' + Date.now(), title };
-            const updatedSections = [...(window.currentBoard.sections || []), newSection];
-            
-            await updateDoc(doc(db, "boards", window.currentBoard.id), { sections: updatedSections });
+            const title = prompt("새 섹션 이름:");
+            if (title) await updateDoc(doc(db, "boards", window.currentBoard.id), { sections: [...(window.currentBoard.sections || []), { id: 'sec_' + Date.now(), title }] });
         }
-
         window.editSection = async (secId) => {
             const sections = window.currentBoard.sections;
             const target = sections.find(s => s.id === secId);
             const newTitle = prompt("섹션 이름 수정:", target.title);
-            
             if (newTitle && newTitle !== target.title) {
                 target.title = newTitle;
                 await updateDoc(doc(db, "boards", window.currentBoard.id), { sections });
             }
         }
-
         window.deleteSection = async (secId) => {
-            if(!confirm("섹션을 삭제하시겠습니까? (내부에 있던 게시물들은 다른 섹션이나 자유형 영역으로 재배치해야 할 수 있습니다.)")) return;
-            
+            if(!confirm("섹션을 삭제하시겠습니까?")) return;
             const updatedSections = window.currentBoard.sections.filter(s => s.id !== secId);
             await updateDoc(doc(db, "boards", window.currentBoard.id), { sections: updatedSections });
-            
             const targetPosts = window.boardPosts.filter(p => p.sectionId === secId);
-            for (let p of targetPosts) {
-                await updateDoc(doc(db, "posts", p.id), { sectionId: 'none' });
-            }
+            for (let p of targetPosts) await updateDoc(doc(db, "posts", p.id), { sectionId: 'none' });
         }
 
-        // --- 8. 기타 모달 제어 ---
+        // --- 9. 모달창 제어 (초대창 포함) ---
         window.showInviteModal = () => {
-            const code = window.currentBoard.accessCode;
-            document.getElementById('display-access-code').innerText = code;
-            document.getElementById('qr-domain-text').innerText = window.location.hostname || "우리반 온라인 보드";
-            
-            const directUrl = `${window.location.origin}${window.location.pathname}?code=${code}`;
-            document.getElementById('qr-image').src = `https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=${encodeURIComponent(directUrl)}`;
-            
+            document.getElementById('display-access-code').innerText = window.currentBoard.accessCode;
             document.getElementById('modal-invite').classList.remove('hidden');
         }
-
         window.closeModal = (modalId) => { document.getElementById(modalId).classList.add('hidden'); }
         window.copyDirectLink = () => {
-            const code = window.currentBoard.accessCode;
-            const directUrl = `${window.location.origin}${window.location.pathname}?code=${code}`;
-            navigator.clipboard.writeText(directUrl).then(() => { alert(`학생 배포용 링크가 복사되었습니다.\n${directUrl}`); });
-        }
-        window.enlargeQR = () => {
-            const imgUrl = document.getElementById('qr-image').src;
-            window.open().document.write(`<body style="display:flex; justify-content:center; align-items:center; height:100vh; margin:0;"><img src="${imgUrl}" style="width:500px; height:500px;"></body>`);
+            const url = `https://2board.netlify.app?code=${window.currentBoard.accessCode}`;
+            navigator.clipboard.writeText(url).then(() => { alert(`학생 배포용 링크가 복사되었습니다.\n${url}`); });
         }
     </script>
 </body>
