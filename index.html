@@ -77,14 +77,14 @@
         .card-author { font-size: 12px; color: var(--text-sub); }
         .card-content { font-size: 15px; line-height: 1.5; white-space: pre-wrap; }
         .media-preview { width: 100%; border-radius: 8px; object-fit: cover; max-height: 250px; margin-top: 10px; }
-        .attachment-link { display: inline-flex; align-items: center; gap: 8px; background: var(--lavender-gray); padding: 10px; border-radius: 8px; text-decoration: none; font-size: 13px; color: var(--text-main); font-weight: 600; word-break: break-all; margin-top: 5px; }
+        .attachment-link { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px; text-decoration: none; font-size: 13px; color: var(--text-main); font-weight: 600; word-break: break-all; margin-top: 5px; }
         .attachment-link i { color: var(--indigo); }
 
         /* 입력 폼 */
         .post-form-card { border: 2px solid var(--indigo); border-radius: var(--radius-lg); padding: 20px; background: var(--white); box-shadow: var(--shadow); }
         .color-picker { display: flex; gap: 8px; margin-bottom: 15px; }
-        .color-dot { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
-        .color-dot.active { border-color: var(--text-main); transform: scale(1.1); }
+        .color-dot { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
+        .color-dot.active { border-color: var(--text-main); transform: scale(1.15); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .form-tools { display: flex; gap: 8px; margin-bottom: 15px; }
         .btn-tool { background: var(--lavender-gray); color: var(--text-main); padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
         .btn-tool:hover { background: #E5E7EB; }
@@ -105,7 +105,7 @@
 </head>
 <body>
 
-    <div id="auth-screen">
+    <div id="auth-screen" class="hidden">
         <div class="auth-card">
             <h1>우리반 온라인 보드</h1>
             <p>함께 만드는 온라인 학습 공간</p>
@@ -185,7 +185,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
@@ -208,16 +208,72 @@
         window.boardPosts = [];
         window.unsubscribePosts = null;
         window.unsubscribeBoard = null;
-        window.activeFormSectionId = null; // 입력 폼을 띄운 위치(섹션ID 혹은 'freestyle') 추적
+        window.activeFormSectionId = null;
 
-        const colors = ['#FFFFFF', '#FFEBEE', '#E3F2FD', '#E8F5E9', '#FFF3E0', '#F3E5F5'];
+        // 수정된 컬러 팔레트 (흰색, 조금 더 진한 분홍, 노랑, 파랑, 초록, 보라)
+        const colors = ['#FFFFFF', '#F48FB1', '#FFF59D', '#90CAF9', '#A5D6A7', '#CE93D8'];
 
-        // --- 1. 로그인 ---
+        // --- 0. 새로고침 세션 복구 (핵심 수정) ---
+        window.onload = () => {
+            const params = new URLSearchParams(window.location.search);
+            if(params.has('code')) document.getElementById('join-code').value = params.get('code');
+
+            // Firebase Auth 상태 변화 감지 (선생님 로그인 유지)
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    // 선생님 로그인 상태 복구
+                    window.currentUser = { uid: user.uid, name: user.displayName, role: 'teacher' };
+                    const savedBoardId = sessionStorage.getItem('currentBoardId');
+                    
+                    if (savedBoardId) {
+                        await restoreBoard(savedBoardId);
+                    } else {
+                        showDashboard();
+                    }
+                } else {
+                    // 선생님 로그인이 풀려있다면 학생 세션스토리지 확인
+                    const studentData = sessionStorage.getItem('studentInfo');
+                    if (studentData) {
+                        const parsed = JSON.parse(studentData);
+                        window.currentUser = { uid: parsed.uid, name: parsed.name, role: 'student' };
+                        
+                        // 기존 방번호로 데이터베이스 재조회
+                        const q = query(collection(db, "boards"), where("accessCode", "==", parsed.code));
+                        const snap = await getDocs(q);
+                        if (!snap.empty) {
+                            const boardData = snap.docs[0];
+                            window.currentBoard = { id: boardData.id, ...boardData.data() };
+                            openBoardWorkspace();
+                        } else {
+                            sessionStorage.clear();
+                            document.getElementById('auth-screen').classList.remove('hidden');
+                        }
+                    } else {
+                        // 아무 정보도 없으면 로그인 화면 표시
+                        document.getElementById('auth-screen').classList.remove('hidden');
+                    }
+                }
+            });
+        };
+
+        async function restoreBoard(boardId) {
+            const snap = await getDocs(query(collection(db, "boards")));
+            const docData = snap.docs.find(d => d.id === boardId);
+            if (docData) {
+                window.currentBoard = { id: docData.id, ...docData.data() };
+                openBoardWorkspace();
+            } else {
+                sessionStorage.removeItem('currentBoardId');
+                showDashboard();
+            }
+        }
+
+
+        // --- 1. 로그인 (수동) ---
         window.teacherLogin = async () => {
             try {
-                const result = await signInWithPopup(auth, new GoogleAuthProvider());
-                window.currentUser = { uid: result.user.uid, name: result.user.displayName, role: 'teacher' };
-                showDashboard();
+                // signInWithPopup 성공 시 위 onAuthStateChanged가 자동으로 실행되므로 추가 코드 불필요
+                await signInWithPopup(auth, new GoogleAuthProvider());
             } catch (error) { console.error(error); alert("로그인 실패"); }
         }
 
@@ -233,10 +289,15 @@
             const boardData = snap.docs[0];
             window.currentBoard = { id: boardData.id, ...boardData.data() };
             window.currentUser = { uid: 'stu_' + Date.now(), name: name, role: 'student' };
+            
+            // 학생 세션 정보 저장
+            sessionStorage.setItem('studentInfo', JSON.stringify({ uid: window.currentUser.uid, name: name, code: code }));
+            
             openBoardWorkspace();
         }
 
         window.logout = async () => {
+            sessionStorage.clear();
             if (window.currentUser?.role === 'teacher') await signOut(auth);
             window.currentUser = null;
             location.reload();
@@ -247,7 +308,7 @@
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('board-workspace-container').classList.add('hidden');
             document.getElementById('dashboard-screen').classList.remove('hidden');
-            document.getElementById('dash-greeting').innerText = `${window.currentUser.name} 선생님의 보드`;
+            document.getElementById('dash-greeting').innerText = `${window.currentUser.name} 선생님의 보드 목록`;
             
             const q = query(collection(db, "boards"), where("teacherId", "==", window.currentUser.uid));
             onSnapshot(q, (snapshot) => {
@@ -263,7 +324,7 @@
                         <div class="board-card" onclick="enterTeacherBoard('${b.id}')">
                             <div><div class="board-card-title">${b.title}</div><div class="board-card-desc">${b.description || ''}</div></div>
                             <div class="board-card-footer">
-                                <span class="badge-code">방번호: ${b.accessCode}</span>
+                                <span class="badge-code" style="background: var(--lavender-gray); color: var(--indigo); padding: 4px 10px; border-radius: 20px; font-weight: 700;">방번호: ${b.accessCode}</span>
                                 <button onclick="event.stopPropagation(); deleteBoard('${b.id}')" style="background:none; border:none; cursor:pointer; color:var(--text-sub);"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </div>`;
@@ -282,7 +343,6 @@
             const desc = document.getElementById('new-board-desc').value.trim();
             if (!title) return alert("제목을 입력하세요.");
             
-            // 기본 섹션 1개 포함하여 생성
             const initialSections = [{ id: 'sec_' + Date.now(), title: '💡 오늘의 배움' }];
 
             try {
@@ -306,6 +366,9 @@
             const snap = await getDocs(query(collection(db, "boards")));
             const docData = snap.docs.find(d => d.id === boardId);
             window.currentBoard = { id: docData.id, ...docData.data() };
+            
+            // 교사가 진입한 보드 기억 (새로고침 방어)
+            sessionStorage.setItem('currentBoardId', docData.id);
             openBoardWorkspace();
         }
 
@@ -322,14 +385,12 @@
                 el.style.display = window.currentUser.role === 'teacher' ? 'inline-flex' : 'none';
             });
 
-            // 보드 문서 실시간 감시 (섹션 변경 감지)
             if(window.unsubscribeBoard) window.unsubscribeBoard();
             window.unsubscribeBoard = onSnapshot(doc(db, "boards", window.currentBoard.id), (docSnapshot) => {
                 window.currentBoard = { id: docSnapshot.id, ...docSnapshot.data() };
-                renderBoardLayout(); // 섹션 정보가 갱신되면 UI 다시 그림
+                renderBoardLayout(); 
             });
 
-            // 게시물 컬렉션 실시간 감시
             if (window.unsubscribePosts) window.unsubscribePosts();
             window.unsubscribePosts = onSnapshot(query(collection(db, "posts"), where("boardId", "==", window.currentBoard.id)), (snapshot) => {
                 const posts = [];
@@ -343,8 +404,13 @@
         window.goToDashboard = () => {
             if (window.unsubscribePosts) window.unsubscribePosts();
             if (window.unsubscribeBoard) window.unsubscribeBoard();
-            if (window.currentUser.role === 'teacher') showDashboard();
-            else logout();
+            
+            if (window.currentUser.role === 'teacher') {
+                sessionStorage.removeItem('currentBoardId');
+                showDashboard();
+            } else {
+                logout();
+            }
         }
 
         // --- 4. 섹션 vs 자유형 레이아웃 렌더링 ---
@@ -355,7 +421,6 @@
             const sections = window.currentBoard.sections || [];
 
             if (sections.length > 0) {
-                // 섹션이 존재할 때 (컬럼형 레이아웃)
                 container.className = 'layout-sectioned';
                 sections.forEach(sec => {
                     const secPosts = window.boardPosts.filter(p => p.sectionId === sec.id);
@@ -383,9 +448,8 @@
                     container.appendChild(colDiv);
                 });
             } else {
-                // 섹션이 하나도 없을 때 (자유형 레이아웃)
                 container.className = 'layout-freestyle';
-                const allPosts = window.boardPosts; // 섹션 구분 없이 모두 표시
+                const allPosts = window.boardPosts; 
                 
                 const addBtnHtml = window.activeFormSectionId === 'freestyle' ? getPostFormHTML('freestyle') : `<div class="post-form-wrapper"><button class="btn-secondary" style="width:100%; height:100px; border:2px dashed #D1D5DB;" onclick="openForm('freestyle')">+ 새 게시물 추가</button></div>`;
                 
@@ -393,7 +457,6 @@
             }
         }
 
-        // 게시물 카드 HTML 생성기 (수정, 이동, 삭제 권한 반영)
         function renderPostsHTML(posts) {
             return posts.map(post => {
                 const isAuthor = window.currentUser.uid === post.authorId;
@@ -421,7 +484,7 @@
                         
                         ${post.imageUrl ? `<img src="${post.imageUrl}" class="media-preview" alt="첨부 이미지">` : ''}
                         ${post.fileUrl ? `<a href="${post.fileUrl}" target="_blank" class="attachment-link"><i class="fa-solid fa-file-arrow-down"></i> 첨부파일 보기/다운로드</a>` : ''}
-                        ${post.link ? `<a href="${post.link}" target="_blank" class="attachment-link" style="background:rgba(79,70,229,0.1); color:var(--indigo);"><i class="fa-solid fa-link"></i> ${post.link}</a>` : ''}
+                        ${post.link ? `<a href="${post.link}" target="_blank" class="attachment-link"><i class="fa-solid fa-link"></i> ${post.link}</a>` : ''}
                     </div>
                 `;
             }).join('');
@@ -498,7 +561,6 @@
             document.getElementById(`form-${secId}`).style.opacity = '0.5';
 
             try {
-                // Storage 실제 업로드 처리
                 if (imgFile) {
                     const imgRef = ref(storage, `images/${Date.now()}_${imgFile.name}`);
                     await uploadBytes(imgRef, imgFile);
@@ -573,7 +635,6 @@
             const updatedSections = window.currentBoard.sections.filter(s => s.id !== secId);
             await updateDoc(doc(db, "boards", window.currentBoard.id), { sections: updatedSections });
             
-            // 삭제된 섹션에 있던 게시물들의 처리 (자유형 'none'으로 변경)
             const targetPosts = window.boardPosts.filter(p => p.sectionId === secId);
             for (let p of targetPosts) {
                 await updateDoc(doc(db, "posts", p.id), { sectionId: 'none' });
@@ -602,11 +663,6 @@
             const imgUrl = document.getElementById('qr-image').src;
             window.open().document.write(`<body style="display:flex; justify-content:center; align-items:center; height:100vh; margin:0;"><img src="${imgUrl}" style="width:500px; height:500px;"></body>`);
         }
-
-        window.onload = () => {
-            const params = new URLSearchParams(window.location.search);
-            if(params.has('code')) document.getElementById('join-code').value = params.get('code');
-        };
     </script>
 </body>
 </html>
