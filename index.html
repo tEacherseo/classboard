@@ -35,13 +35,17 @@
 
         /* 화면 1: 인증 화면 */
         #auth-screen { position: fixed; inset: 0; background: var(--bg-color); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
-        .auth-card { background: var(--white); padding: 50px; border-radius: 24px; box-shadow: var(--shadow); text-align: center; width: 400px; }
+        .auth-card { background: var(--white); padding: 50px; border-radius: 24px; box-shadow: var(--shadow); text-align: center; width: 400px; position: relative; }
         .auth-card h1 { margin-bottom: 5px; font-weight: 800; color: var(--indigo); letter-spacing: -0.5px; }
-        .auth-card p { color: var(--text-sub); margin-bottom: 30px; font-size: 15px; }
+        .auth-card p { color: var(--text-sub); margin-bottom: 15px; font-size: 15px; }
         .access-code-box { background: var(--lavender-gray); padding: 20px; border-radius: var(--radius-lg); margin-bottom: 20px; }
         .access-code-box input { text-align: center; font-size: 24px; font-weight: 700; letter-spacing: 4px; color: var(--indigo); background: var(--white); border: 1px solid var(--border-color); }
         .divider { margin: 25px 0; color: #9CA3AF; display: flex; align-items: center; font-size: 13px; font-weight: 500; }
         .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border-color); margin: 0 15px; }
+
+        /* 첫 화면 태블릿 접속 안내 버튼 */
+        .btn-qr-guide { background: var(--white); border: 1px solid var(--border-color); color: var(--text-sub); padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-bottom: 25px; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-qr-guide:hover { color: var(--indigo); border-color: var(--indigo); background: #F9FAFB; }
 
         /* 화면 2: 대시보드 */
         #dashboard-screen { padding: 40px; overflow-y: auto; flex: 1; }
@@ -94,6 +98,7 @@
         .qr-domain { font-size: 22px; font-weight: 800; color: #D95D39; margin-bottom: 5px; }
         .qr-subtitle { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 15px; }
         .qr-code-text { font-size: 72px; font-weight: 900; color: #5B63F5; line-height: 1; margin-bottom: 35px; letter-spacing: 2px; }
+        .qr-image-wrapper { background: white; padding: 15px; border-radius: 12px; display: inline-block; border: 1px solid var(--border-color); margin-bottom: 25px; }
 
         /* 참여자 목록 카드 스타일 */
         .participant-card { border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; margin-bottom: 10px; text-align: left; background: var(--white); }
@@ -112,6 +117,10 @@
             <h1>우리반 온라인 보드</h1>
             <p>함께 만드는 온라인 학습 공간</p>
             
+            <button class="btn-qr-guide" onclick="showLoginQrModal()">
+                <i class="fa-solid fa-qrcode"></i> 접속 안내
+            </button>
+            
             <div class="access-code-box">
                 <input type="text" id="student-name" class="form-input" placeholder="이름 (예: 홍길동)" style="background:var(--white); font-size:15px; letter-spacing:normal; font-weight:600;">
                 <input type="text" id="join-code" class="form-input" placeholder="000000" maxlength="6" style="margin-bottom: 15px;">
@@ -123,6 +132,18 @@
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width: 20px;">
                 교사 계정으로 시작
             </button>
+        </div>
+    </div>
+
+    <div id="modal-login-qr" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="btn-close-modal" onclick="closeModal('modal-login-qr')"><i class="fa-solid fa-xmark"></i></button>
+            <div class="qr-domain">2board.netlify.app</div>
+            <div class="qr-subtitle">태블릿 카메라로 QR코드를 스캔하세요</div>
+            <div class="qr-image-wrapper">
+                <img src="./qrcode_2board.netlify.app.png" alt="모바일 접속 QR 코드" width="180" height="180">
+            </div>
+            <button class="btn-secondary" style="width: 100%; padding: 15px;" onclick="closeModal('modal-login-qr')">닫기</button>
         </div>
     </div>
 
@@ -147,9 +168,7 @@
             <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                 <div id="status-badge" class="badge-lock">🔓 작성 가능</div>
                 <button class="btn-secondary teacher-only" id="btn-toggle-lock" onclick="toggleBoardLock()">보드 잠금</button>
-                
                 <button class="btn-secondary teacher-only" onclick="showParticipantsModal()"><i class="fa-solid fa-users"></i> 참여자 목록</button>
-                
                 <button class="btn-secondary teacher-only" onclick="addSection()"><i class="fa-solid fa-folder-plus"></i> 섹션 추가</button>
                 <button class="btn-primary teacher-only" onclick="showInviteModal()"><i class="fa-solid fa-user-plus"></i> 학생 초대</button>
                 <button class="btn-secondary" onclick="goToDashboard()"><i class="fa-solid fa-house"></i> 나가기</button>
@@ -157,8 +176,7 @@
         </header>
 
         <div id="board-workspace">
-            <div id="board-render-area">
-                </div>
+            <div id="board-render-area"></div>
         </div>
     </div>
 
@@ -180,7 +198,6 @@
             <div class="qr-domain">2board.netlify.app</div>
             <div class="qr-subtitle">접속 후 방번호 입력</div>
             <div class="qr-code-text" id="display-access-code">000000</div>
-            
             <button class="btn-secondary" style="width: 100%; padding: 15px;" onclick="copyDirectLink()">링크 복사</button>
         </div>
     </div>
@@ -191,9 +208,7 @@
                 <h2 style="font-size: 20px; font-weight: 800; margin: 0;">참여자 목록</h2>
                 <button class="btn-secondary" style="padding: 6px 12px; font-size: 13px;" onclick="closeModal('modal-participants')">닫기</button>
             </div>
-            
-            <div id="participants-list-container" style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
-                </div>
+            <div id="participants-list-container" style="max-height: 400px; overflow-y: auto; padding-right: 5px;"></div>
         </div>
     </div>
 
@@ -226,10 +241,9 @@
         window.unsubscribeParticipants = null;
         window.activeFormSectionId = null;
 
-        // 수정된 진한 파스텔톤 6색
         const colors = ['#FFFFFF', '#F48FB1', '#FFF59D', '#90CAF9', '#A5D6A7', '#CE93D8'];
 
-        // --- 0. 접속 관리 및 초기화 ---
+        // --- 접속 관리 및 초기화 ---
         window.onload = () => {
             const params = new URLSearchParams(window.location.search);
             if(params.has('code')) document.getElementById('join-code').value = params.get('code');
@@ -273,7 +287,6 @@
             }
         }
 
-        // 브라우저 종료/새로고침 시 접속 기록 삭제 시도
         window.addEventListener('beforeunload', () => {
             if(window.currentUser && window.currentBoard) {
                 const pRef = doc(db, "board_participants", `${window.currentUser.uid}_${window.currentBoard.id}`);
@@ -281,7 +294,9 @@
             }
         });
 
-        // --- 1. 로그인 ---
+        // --- 로그인 & 접속 안내 ---
+        window.showLoginQrModal = () => { document.getElementById('modal-login-qr').classList.remove('hidden'); }
+
         window.teacherLogin = async () => {
             try { await signInWithPopup(auth, new GoogleAuthProvider()); } 
             catch (error) { alert("로그인 실패"); }
@@ -311,7 +326,7 @@
             location.reload();
         }
 
-        // --- 2. 대시보드 ---
+        // --- 대시보드 ---
         function showDashboard() {
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('board-workspace-container').classList.add('hidden');
@@ -368,7 +383,7 @@
             if(confirm("보드를 삭제하시겠습니까?")) await deleteDoc(doc(db, "boards", boardId));
         }
 
-        // --- 3. 보드 진입 및 실시간 관리 ---
+        // --- 보드 진입 및 실시간 관리 ---
         window.enterTeacherBoard = async (boardId) => {
             const snap = await getDocs(query(collection(db, "boards")));
             const docData = snap.docs.find(d => d.id === boardId);
@@ -469,7 +484,7 @@
             }
         }
 
-        // --- 4. 렌더링 (잠금 상태 적용) ---
+        // --- 렌더링 (잠금 상태 적용) ---
         function renderBoardLayout() {
             const container = document.getElementById('board-render-area');
             container.innerHTML = '';
@@ -551,13 +566,13 @@
             }).join('');
         }
 
-        // --- 5. 보드 잠금 관리 ---
+        // --- 보드 잠금 관리 ---
         window.toggleBoardLock = async () => {
             const newState = !window.currentBoard.isLocked;
             await updateDoc(doc(db, "boards", window.currentBoard.id), { isLocked: newState });
         }
 
-        // --- 6. 참여자 관리 로직 ---
+        // --- 참여자 관리 로직 ---
         async function recordParticipant() {
             const pRef = doc(db, "board_participants", `${window.currentUser.uid}_${window.currentBoard.id}`);
             await setDoc(pRef, {
@@ -611,7 +626,7 @@
             }).join('');
         }
 
-        // --- 7. 게시물 작성 및 파일 업로드 ---
+        // --- 게시물 작성 및 파일 업로드 ---
         window.openForm = (secId) => { window.activeFormSectionId = secId; renderBoardLayout(); }
         window.closeForm = () => { window.activeFormSectionId = null; renderBoardLayout(); }
 
@@ -696,7 +711,7 @@
             } catch (e) { alert("게시물 업로드 중 오류가 발생했습니다."); }
         }
 
-        // --- 8. 게시물 및 섹션 제어 ---
+        // --- 게시물 및 섹션 제어 ---
         window.deletePost = async (postId) => { if(confirm("삭제하시겠습니까?")) await deleteDoc(doc(db, "posts", postId)); }
         window.editPost = async (postId) => {
             const post = window.boardPosts.find(p => p.id === postId);
@@ -734,7 +749,7 @@
             for (let p of targetPosts) await updateDoc(doc(db, "posts", p.id), { sectionId: 'none' });
         }
 
-        // --- 9. 모달창 제어 ---
+        // --- 모달창 제어 (초대창 포함) ---
         window.showInviteModal = () => {
             document.getElementById('display-access-code').innerText = window.currentBoard.accessCode;
             document.getElementById('modal-invite').classList.remove('hidden');
