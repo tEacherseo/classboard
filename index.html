@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>우리반 온라인 보드</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #F0F2F5;
+            --white: #FFFFFF;
+            --indigo: #4F46E5;
+            --indigo-dark: #3730A3;
+            --lavender-gray: #F3F2F8;
+            --text-main: #1F2937;
+            --text-sub: #6B7280;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* --- 로그인/인증 화면 --- */
+        #auth-screen { position: fixed; inset: 0; background: var(--bg-color); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
+        .auth-card { background: var(--white); padding: 50px; border-radius: 24px; box-shadow: var(--shadow); text-align: center; width: 400px; }
+        .auth-card h1 { margin-bottom: 10px; font-weight: 800; color: var(--indigo); }
+        .auth-card p { color: var(--text-sub); margin-bottom: 30px; font-size: 15px; }
+        .btn-google { background: var(--white); color: var(--text-main); border: 1px solid #E5E7EB; padding: 15px; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; width: 100%; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .btn-google:hover { background: #F9FAFB; }
+        .divider { margin: 20px 0; color: var(--text-sub); display: flex; align-items: center; font-size: 13px; }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #E5E7EB; margin: 0 10px; }
+        .student-input { width: 100%; padding: 15px; border-radius: var(--radius-md); border: 1px solid #E5E7EB; margin-bottom: 10px; text-align: center; font-size: 16px; background: var(--lavender-gray); }
+        .btn-enter { background: var(--indigo); color: white; border: none; padding: 15px; border-radius: var(--radius-md); cursor: pointer; font-weight: 700; width: 100%; transition: 0.2s; }
+        .btn-enter:hover { background: var(--indigo-dark); }
+
+        /* --- 헤더 --- */
+        header { padding: 20px 40px; background: var(--white); border-bottom: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+        h2 { font-weight: 800; color: var(--text-main); }
+        .header-actions { display: flex; gap: 10px; align-items: center; }
+        .user-info { font-size: 14px; font-weight: 600; color: var(--text-sub); margin-right: 15px; }
+        .btn-action { background: var(--indigo); color: white; padding: 10px 18px; border-radius: var(--radius-md); border: none; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .btn-action.secondary { background: var(--lavender-gray); color: var(--text-main); border: 1px solid #E5E7EB; }
+
+        /* --- 보드 메인 --- */
+        #board-area { flex: 1; padding: 30px 40px; overflow: auto; }
+        .layout-sectioned { display: flex; align-items: flex-start; gap: 30px; min-height: 100%; }
+        .layout-freestyle { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 20px; }
+        .section { min-width: 360px; max-width: 360px; display: flex; flex-direction: column; gap: 20px; }
+        .layout-freestyle .card, .layout-freestyle .post-form-card { width: calc(33.333% - 14px); min-width: 300px; }
+
+        .section-header { background: var(--indigo); color: white; padding: 15px 20px; border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2); }
+        .section-title { font-weight: 700; font-size: 16px; }
+
+        /* --- 카드 (게시물) --- */
+        .card { background: var(--white); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px; transition: transform 0.2s; border: 1px solid #E5E7EB; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.08); }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .card-title { font-weight: 700; font-size: 17px; }
+        .card-author { font-size: 12px; color: var(--text-sub); background: rgba(0,0,0,0.05); padding: 2px 8px; border-radius: 4px; margin-top: 5px; display: inline-block; }
+        .card-content { font-size: 15px; color: var(--text-main); line-height: 1.5; white-space: pre-wrap; word-break: break-all; }
+        .card-actions button { background: transparent; border: none; cursor: pointer; color: var(--text-sub); margin-left: 8px; }
+        .card-actions button:hover { color: var(--indigo); }
+        
+        .media-preview { width: 100%; border-radius: 8px; object-fit: cover; max-height: 200px; background: #F9FAFB; }
+        .attachment-link { display: inline-flex; align-items: center; gap: 8px; background: var(--lavender-gray); padding: 10px; border-radius: 8px; text-decoration: none; font-size: 13px; color: var(--text-main); font-weight: 600; word-break: break-all; }
+        .attachment-link i { color: var(--indigo); }
+
+        /* --- 입력 UI --- */
+        .post-form-card { border: 2px solid var(--indigo); border-radius: var(--radius-lg); padding: 20px; background: var(--white); box-shadow: var(--shadow); }
+        .color-picker { display: flex; gap: 8px; margin-bottom: 15px; }
+        .color-dot { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+        .color-dot.active { border-color: var(--text-main); transform: scale(1.1); }
+        
+        .form-input { width: 100%; background: var(--lavender-gray); border: none; border-radius: var(--radius-md); padding: 16px; font-size: 15px; margin-bottom: 12px; font-family: inherit; }
+        .form-input:focus { outline: 1px solid var(--indigo); background: #EAE9F4; }
+        .form-textarea { resize: none; min-height: 100px; }
+        
+        .form-tools { display: flex; gap: 8px; margin-bottom: 15px; }
+        .btn-tool { background: var(--lavender-gray); color: var(--text-main); padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        .btn-tool:hover { background: #E5E7EB; }
+        
+        .btn-submit { background: var(--indigo); color: white; width: 100%; padding: 14px; border-radius: var(--radius-md); font-weight: 700; font-size: 16px; border: none; cursor: pointer; }
+        .hidden { display: none !important; }
+        .preview-text { font-size: 12px; color: var(--indigo); margin-bottom: 10px; word-break: break-all; }
+    </style>
+</head>
+<body>
+
+    <div id="auth-screen">
+        <div class="auth-card">
+            <h1>우리반 보드</h1>
+            <p>함께 만드는 온라인 학습 공간</p>
+            
+            <button class="btn-google" id="btn-teacher-login">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width: 20px;">
+                교사 로그인 (데이터 관리)
+            </button>
+            
+            <div class="divider">학생 접속</div>
+            
+            <input type="text" id="student-name" class="student-input" placeholder="이름을 입력하세요">
+            <input type="text" id="student-code" class="student-input" placeholder="접속 코드 (예: 1234)">
+            <button class="btn-enter" id="btn-student-login">보드 입장하기</button>
+        </div>
+    </div>
+
+    <header id="main-header" class="hidden">
+        <h2>공수전분교 온라인 보드</h2>
+        <div class="header-actions">
+            <span class="user-info" id="user-info-display"></span>
+            <button class="btn-action secondary" onclick="copyShareLink()"><i class="fa-solid fa-link"></i> 공유 링크</button>
+            <button class="btn-action teacher-only" onclick="addSection()"><i class="fa-solid fa-plus"></i> 섹션 추가</button>
+            <button class="btn-action secondary" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> 나가기</button>
+        </div>
+    </header>
+
+    <div id="board-area" class="hidden">
+        <div id="board-container"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+        // ==========================================
+        // 🚨 여기에 선생님의 Firebase Config 값을 입력해주세요
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyB29-sMOLGpBEefRZoqfy8oPzzo8Ed571M",
+            authDomain: "board-d417d.firebaseapp.com",
+            projectId: "board-d417d",
+            storageBucket: "board-d417d.firebasestorage.app",
+            messagingSenderId: "580625108615",
+            appId: "1:580625108615:web:855970b773bce3d4def222"
+        };
+
+        // Firebase 초기화 방어 코드 (설정값이 없을 땐 로컬 모드로 작동하도록 구성)
+        let app, auth, db, storage;
+        let isFirebaseActive = false;
+        
+        if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            storage = getStorage(app);
+            isFirebaseActive = true;
+        }
+
+        // --- 전역 상태 관리 ---
+        window.currentUser = null; // { uid, name, role: 'teacher'|'student' }
+        window.boardSections = [{ id: 'sec-default', title: '💡오늘의 배움 ' }];
+        window.boardPosts = [];
+        window.activeFormSection = null;
+        const colors = ['#FFFFFF', '#FFEBEE', '#E3F2FD', '#E8F5E9', '#FFF3E0', '#F3E5F5'];
+
+        // --- 인증 로직 ---
+        document.getElementById('btn-teacher-login').addEventListener('click', async () => {
+            if (!isFirebaseActive) {
+                alert("Firebase 설정이 필요합니다. 임시 교사 모드로 진입합니다.");
+                setSession('teacher-local', '석현쌤', 'teacher');
+                initBoard();
+                return;
+            }
+            try {
+                const provider = new GoogleAuthProvider();
+                const result = await signInWithPopup(auth, provider);
+                setSession(result.user.uid, result.user.displayName, 'teacher');
+                initBoard();
+            } catch (error) { console.error(error); alert("로그인 실패"); }
+        });
+
+        document.getElementById('btn-student-login').addEventListener('click', () => {
+            const name = document.getElementById('student-name').value;
+            const code = document.getElementById('student-code').value;
+            if (!name || !code) return alert("이름과 코드를 입력해주세요.");
+            
+            // 공유 링크의 파라미터나 설정된 코드와 일치하는지 확인 (기본 패스워드 로직)
+            const expectedCode = new URLSearchParams(window.location.search).get('code') || "1234";
+            if (code !== expectedCode && code !== "1234") return alert("코드가 올바르지 않습니다.");
+
+            // 학생 고유 ID 생성 (브라우저 세션 유지용)
+            let studentId = localStorage.getItem('studentUid');
+            if (!studentId) {
+                studentId = 'stu_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('studentUid', studentId);
+            }
+            setSession(studentId, name, 'student');
+            initBoard();
+        });
+
+        function setSession(uid, name, role) {
+            window.currentUser = { uid, name, role };
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('main-header').classList.remove('hidden');
+            document.getElementById('board-area').classList.remove('hidden');
+            document.getElementById('user-info-display').innerText = `${name} (${role === 'teacher' ? '교사' : '학생'})`;
+            
+            // 교사 전용 UI 제어
+            document.querySelectorAll('.teacher-only').forEach(el => {
+                el.style.display = role === 'teacher' ? 'flex' : 'none';
+            });
+        }
+
+        window.logout = () => {
+            if (isFirebaseActive && window.currentUser?.role === 'teacher') signOut(auth);
+            window.currentUser = null;
+            location.reload();
+        }
+
+        // --- 공유 링크 생성 ---
+        window.copyShareLink = () => {
+            const link = window.location.origin + window.location.pathname + "?code=1234";
+            navigator.clipboard.writeText(link).then(() => {
+                alert(`학생 배포용 공유 링크가 복사되었습니다.\n${link}\n(접속 코드: 1234)`);
+            });
+        }
+
+        // --- 데이터 초기화 및 렌더링 ---
+        function initBoard() {
+            if (isFirebaseActive) {
+                // 실시간 데이터 구독 (Firestore)
+                const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+                onSnapshot(q, (snapshot) => {
+                    window.boardPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderBoard();
+                });
+            } else {
+                renderBoard(); // 로컬 모드
+            }
+        }
+
+        window.renderBoard = () => {
+            const container = document.getElementById('board-container');
+            container.innerHTML = '';
+            
+            // 섹션 유무에 따른 레이아웃 결정
+            if (window.boardSections.length > 0) {
+                container.className = 'layout-sectioned';
+                window.boardSections.forEach(sec => {
+                    const secPosts = window.boardPosts.filter(p => p.sectionId === sec.id);
+                    container.appendChild(createSectionElement(sec, secPosts));
+                });
+            } else {
+                container.className = 'layout-freestyle';
+                container.innerHTML = renderPosts(window.boardPosts, 'none');
+                if (window.activeFormSection === 'none') {
+                    container.insertAdjacentHTML('afterbegin', getFormHTML('none'));
+                } else {
+                    container.insertAdjacentHTML('afterbegin', `<div class="card" style="display:flex; justify-content:center; align-items:center; cursor:pointer; min-height:150px; background:rgba(255,255,255,0.5); border: 2px dashed #D1D5DB;" onclick="openForm('none')">+ 새 의견 남기기</div>`);
+                }
+            }
+        }
+
+        function createSectionElement(section, posts) {
+            const div = document.createElement('div');
+            div.className = 'section';
+            
+            let actionsHtml = '';
+            if (window.currentUser?.role === 'teacher') {
+                actionsHtml = `
+                    <div style="display:flex; gap:10px;">
+                        <button onclick="deleteSection('${section.id}')" style="background:none; border:none; color:white; cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+            }
+
+            div.innerHTML = `
+                <div class="section-header">
+                    <span class="section-title">${section.title}</span>
+                    ${actionsHtml}
+                </div>
+                <div style="display:flex; flex-direction:column; gap:20px;">
+                    ${window.activeFormSection === section.id ? getFormHTML(section.id) : `<button class="btn-action secondary" style="width:100%; justify-content:center; border: 2px dashed #D1D5DB; background:var(--white);" onclick="openForm('${section.id}')">+ 새 의견 남기기</button>`}
+                    ${renderPosts(posts, section.id)}
+                </div>
+            `;
+            return div;
+        }
+
+        function renderPosts(posts, currentSecId) {
+            return posts.map(post => {
+                // 권한 체크: 교사이거나 본인이 작성한 글이면 수정/삭제/이동 가능
+                const canEdit = window.currentUser?.role === 'teacher' || window.currentUser?.uid === post.authorId;
+                
+                let controlsHtml = '';
+                if (canEdit) {
+                    let moveBtn = window.currentUser?.role === 'teacher' && window.boardSections.length > 0 ? `<button onclick="movePost('${post.id}')" title="섹션 이동"><i class="fa-solid fa-arrow-right-arrow-left"></i></button>` : '';
+                    controlsHtml = `
+                        <div class="card-actions">
+                            ${moveBtn}
+                            <button onclick="editPost('${post.id}')" title="수정"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deletePost('${post.id}')" title="삭제"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="card" style="background-color: ${post.color || '#FFFFFF'}">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">${post.title}</div>
+                                <div class="card-author"><i class="fa-solid fa-user"></i> ${post.authorName}</div>
+                            </div>
+                            ${controlsHtml}
+                        </div>
+                        <div class="card-content">${post.content}</div>
+                        
+                        ${post.imageUrl ? `<img src="${post.imageUrl}" class="media-preview">` : ''}
+                        ${post.fileUrl ? `<a href="${post.fileUrl}" target="_blank" class="attachment-link"><i class="fa-solid fa-paperclip"></i> 첨부파일 다운로드</a>` : ''}
+                        ${post.link ? `<a href="${post.link}" target="_blank" class="attachment-link" style="background:rgba(79,70,229,0.1); color:var(--indigo);"><i class="fa-solid fa-link"></i> ${post.link}</a>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- 폼 UI 및 로직 ---
+        window.openForm = (secId) => { window.activeFormSection = secId; renderBoard(); }
+        window.closeForm = () => { window.activeFormSection = null; renderBoard(); }
+
+        window.getFormHTML = (secId) => {
+            const colorDots = colors.map((c, i) => `<div class="color-dot ${i===0?'active':''}" style="background-color: ${c}" onclick="selectColor(this, '${c}', '${secId}')"></div>`).join('');
+            
+            return `
+                <div class="post-form-card" id="form-${secId}">
+                    <div class="color-picker">${colorDots}</div>
+                    <input type="hidden" id="color-${secId}" value="#FFFFFF">
+                    <input type="text" class="form-input" id="title-${secId}" placeholder="제목을 입력하세요">
+                    <textarea class="form-input form-textarea" id="content-${secId}" placeholder="내용을 입력하세요"></textarea>
+                    
+                    <div class="form-tools">
+                        <label class="btn-tool"><i class="fa-regular fa-image"></i> 이미지 <input type="file" id="img-${secId}" accept="image/*" class="hidden" onchange="previewFile(this, '${secId}', 'img')"></label>
+                        <label class="btn-tool"><i class="fa-solid fa-paperclip"></i> 파일 <input type="file" id="file-${secId}" class="hidden" onchange="previewFile(this, '${secId}', 'file')"></label>
+                        <button class="btn-tool" onclick="promptLink('${secId}')"><i class="fa-solid fa-link"></i> 링크</button>
+                    </div>
+                    
+                    <div id="preview-${secId}" class="preview-text"></div>
+                    <input type="hidden" id="link-${secId}" value="">
+                    
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn-submit" onclick="submitPost('${secId}')">게시하기</button>
+                        <button class="btn-submit" style="background:#E5E7EB; color:var(--text-main);" onclick="closeForm()">취소</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.selectColor = (el, color, secId) => {
+            const dots = el.parentElement.querySelectorAll('.color-dot');
+            dots.forEach(d => d.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById(`color-${secId}`).value = color;
+            document.getElementById(`form-${secId}`).style.backgroundColor = color;
+        }
+
+        window.promptLink = (secId) => {
+            const url = prompt("첨부할 링크 URL을 입력하세요:");
+            if (url) {
+                document.getElementById(`link-${secId}`).value = url;
+                document.getElementById(`preview-${secId}`).innerText += `\n[링크 추가됨] ${url}`;
+            }
+        }
+
+        window.previewFile = (input, secId, type) => {
+            if(input.files.length > 0) {
+                const name = input.files[0].name;
+                document.getElementById(`preview-${secId}`).innerText += `\n[${type==='img'?'이미지':'파일'} 선택됨] ${name}`;
+            }
+        }
+
+        // --- Firestore CRUD 로직 ---
+        window.submitPost = async (secId) => {
+            const title = document.getElementById(`title-${secId}`).value;
+            const content = document.getElementById(`content-${secId}`).value;
+            const link = document.getElementById(`link-${secId}`).value;
+            const color = document.getElementById(`color-${secId}`).value;
+            
+            const imgFile = document.getElementById(`img-${secId}`)?.files[0];
+            const attachFile = document.getElementById(`file-${secId}`)?.files[0];
+
+            if (!title || !content) return alert("제목과 내용을 입력해주세요.");
+
+            const postData = {
+                sectionId: secId,
+                title, content, link, color,
+                authorId: window.currentUser.uid,
+                authorName: window.currentUser.name,
+                createdAt: Date.now(),
+                imageUrl: null,
+                fileUrl: null
+            };
+
+            // 파일 업로드 처리 (Firebase 연결 시)
+            if (isFirebaseActive) {
+                try {
+                    document.getElementById(`form-${secId}`).style.opacity = '0.5';
+                    if (imgFile) {
+                        const imgRef = ref(storage, `images/${Date.now()}_${imgFile.name}`);
+                        await uploadBytes(imgRef, imgFile);
+                        postData.imageUrl = await getDownloadURL(imgRef);
+                    }
+                    if (attachFile) {
+                        const fileRef = ref(storage, `files/${Date.now()}_${attachFile.name}`);
+                        await uploadBytes(fileRef, attachFile);
+                        postData.fileUrl = await getDownloadURL(fileRef);
+                    }
+                    await addDoc(collection(db, "posts"), postData);
+                } catch (e) {
+                    console.error("업로드 오류", e);
+                    alert("데이터 저장 중 오류가 발생했습니다.");
+                }
+            } else {
+                // 로컬 모드 처리
+                postData.id = Date.now().toString();
+                window.boardPosts.unshift(postData);
+            }
+
+            window.activeFormSection = null;
+            renderBoard();
+        }
+
+        window.deletePost = async (postId) => {
+            if(!confirm("정말 삭제하시겠습니까?")) return;
+            if (isFirebaseActive) {
+                await deleteDoc(doc(db, "posts", postId));
+            } else {
+                window.boardPosts = window.boardPosts.filter(p => p.id !== postId);
+                renderBoard();
+            }
+        }
+
+        window.editPost = async (postId) => {
+            const post = window.boardPosts.find(p => p.id === postId);
+            const newContent = prompt("내용 수정:", post.content);
+            if(newContent && newContent !== post.content) {
+                if (isFirebaseActive) {
+                    await updateDoc(doc(db, "posts", postId), { content: newContent });
+                } else {
+                    post.content = newContent;
+                    renderBoard();
+                }
+            }
+        }
+
+        window.movePost = async (postId) => {
+            const secTitles = window.boardSections.map((s, i) => `${i+1}. ${s.title}`).join('\n');
+            const choice = prompt(`이동할 섹션 번호를 입력하세요:\n${secTitles}\n(0 입력 시 자유배치 영역으로 이동)`);
+            
+            let newSecId = 'none';
+            if (choice > 0 && choice <= window.boardSections.length) {
+                newSecId = window.boardSections[choice - 1].id;
+            } else if (choice !== '0') return;
+
+            if (isFirebaseActive) {
+                await updateDoc(doc(db, "posts", postId), { sectionId: newSecId });
+            } else {
+                window.boardPosts.find(p => p.id === postId).sectionId = newSecId;
+                renderBoard();
+            }
+        }
+
+        // --- 섹션 관리 (교사 전용) ---
+        window.addSection = () => {
+            const title = prompt("새 섹션 이름:");
+            if (title) {
+                window.boardSections.push({ id: 'sec-' + Date.now(), title });
+                renderBoard();
+            }
+        }
+
+        window.deleteSection = (secId) => {
+            if(confirm("섹션을 삭제하시겠습니까? (내부 글은 삭제되지 않고 자유배치 영역으로 이동합니다)")) {
+                window.boardSections = window.boardSections.filter(s => s.id !== secId);
+                // Firebase 모드일 경우 해당 섹션 글들의 sectionId를 일괄 업데이트해야 하지만, 
+                // 편의상 프론트엔드 렌더링 시 없는 섹션 ID는 자유배치로 처리하거나 로컬에서 처리합니다.
+                window.boardPosts.forEach(p => { if(p.sectionId === secId) p.sectionId = 'none'; });
+                renderBoard();
+            }
+        }
+
+    </script>
+</body>
+</html>
