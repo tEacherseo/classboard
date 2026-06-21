@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>공수전분교 온라인 보드 시스템</title>
+    <title>우리반 온라인 보드</title>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -32,7 +32,7 @@
         .form-input:focus { outline: none; border-color: var(--indigo); background: var(--white); }
         .hidden { display: none !important; }
 
-        /* --- 화면 1: 로그인 (학생 참여코드 / 교사 로그인) --- */
+        /* --- 화면 1: 로그인 --- */
         #auth-screen { position: fixed; inset: 0; background: var(--bg-color); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
         .auth-card { background: var(--white); padding: 50px; border-radius: 24px; box-shadow: var(--shadow); text-align: center; width: 400px; }
         .auth-card h1 { margin-bottom: 5px; font-weight: 800; color: var(--indigo); letter-spacing: -0.5px; }
@@ -42,14 +42,13 @@
         .divider { margin: 25px 0; color: #9CA3AF; display: flex; align-items: center; font-size: 13px; font-weight: 500; }
         .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #E5E7EB; margin: 0 15px; }
 
-        /* --- 화면 2: 교사 대시보드 --- */
+        /* --- 화면 2: 대시보드 --- */
         #dashboard-screen { padding: 40px; overflow-y: auto; flex: 1; }
         .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
         .dashboard-header h2 { font-size: 28px; font-weight: 800; }
         .board-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
         .create-board-card { border: 2px dashed #D1D5DB; background: rgba(255,255,255,0.5); border-radius: var(--radius-lg); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; cursor: pointer; color: var(--text-sub); font-weight: 600; transition: 0.2s; }
         .create-board-card:hover { border-color: var(--indigo); color: var(--indigo); background: var(--white); }
-        
         .board-card { background: var(--white); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow); border: 1px solid #E5E7EB; display: flex; flex-direction: column; justify-content: space-between; min-height: 200px; cursor: pointer; transition: transform 0.2s; }
         .board-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.08); }
         .board-card-title { font-size: 20px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
@@ -57,11 +56,11 @@
         .board-card-footer { border-top: 1px solid #F3F4F6; padding-top: 15px; margin-top: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-sub); }
         .badge-code { background: var(--lavender-gray); color: var(--indigo); padding: 4px 10px; border-radius: 20px; font-weight: 700; letter-spacing: 1px; }
 
-        /* --- 화면 3: 개별 보드 영역 (기존 UI 호환) --- */
+        /* --- 화면 3: 개별 보드 작업 영역 --- */
         #board-header { padding: 20px 40px; background: var(--white); border-bottom: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
         .board-title-area { display: flex; flex-direction: column; gap: 4px; }
-        .board-title-area h2 { font-weight: 800; font-size: 22px; }
-        .board-title-area p { font-size: 14px; color: var(--text-sub); }
+        .board-title-area h2 { font-weight: 800; font-size: 22px; margin: 0; }
+        .board-title-area p { font-size: 14px; color: var(--text-sub); margin: 0; }
         
         #board-workspace { flex: 1; padding: 30px 40px; overflow: auto; }
         .layout-freestyle { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 20px; }
@@ -70,21 +69,20 @@
         .card-title { font-weight: 700; font-size: 17px; margin-bottom: 10px; }
         .card-content { font-size: 15px; line-height: 1.5; white-space: pre-wrap; }
         
-        /* 입력 폼 */
-        .post-form-card { border: 2px solid var(--indigo); border-radius: var(--radius-lg); padding: 20px; background: var(--white); box-shadow: var(--shadow); }
+        /* 게시물 입력 폼 */
+        .post-form-card { border: 2px solid var(--indigo); border-radius: var(--radius-lg); padding: 20px; background: var(--white); box-shadow: var(--shadow); margin-bottom: 20px; }
         .color-picker { display: flex; gap: 8px; margin-bottom: 15px; }
         .color-dot { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
         .color-dot.active { border-color: var(--text-main); transform: scale(1.1); }
 
-        /* --- 모달창 (초대/QR코드 및 보드 생성) --- */
+        /* --- 모달창 --- */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(4px); }
         .modal-content { background: var(--white); padding: 40px; border-radius: 24px; width: 450px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1); position: relative; }
         .btn-close-modal { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 20px; color: var(--text-sub); cursor: pointer; }
         
-        /* QR 코드 안내창 특화 디자인 (스크린샷 참고) */
-        .qr-domain { font-size: 24px; font-weight: 800; color: #D95D39; /* 스크린샷 주황색 톤 */ margin-bottom: 5px; }
+        .qr-domain { font-size: 24px; font-weight: 800; color: #D95D39; margin-bottom: 5px; }
         .qr-subtitle { font-size: 18px; font-weight: 700; color: var(--text-main); margin-bottom: 15px; }
-        .qr-code-text { font-size: 64px; font-weight: 900; color: #5B63F5; /* 스크린샷 블루 톤 */ line-height: 1; margin-bottom: 25px; letter-spacing: 2px; }
+        .qr-code-text { font-size: 64px; font-weight: 900; color: #5B63F5; line-height: 1; margin-bottom: 25px; letter-spacing: 2px; }
         .qr-image-wrapper { background: white; padding: 15px; border-radius: 12px; display: inline-block; border: 1px solid #E5E7EB; margin-bottom: 25px; }
         .qr-actions { display: flex; gap: 15px; justify-content: center; }
         .qr-actions button { flex: 1; padding: 15px; border-radius: 8px; border: 1px solid #E5E7EB; background: var(--white); font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.2s; }
@@ -95,8 +93,8 @@
 
     <div id="auth-screen">
         <div class="auth-card">
-            <h1>우리반 보드</h1>
-            <p>공수전분교 온라인 학습 공간</p>
+            <h1>우리반 온라인 보드</h1>
+            <p>함께 만드는 온라인 학습 공간</p>
             
             <div class="access-code-box">
                 <input type="text" id="student-name" class="form-input" placeholder="이름 (예: 홍길동)" style="background:var(--white); font-size:15px; letter-spacing:normal; font-weight:600;">
@@ -122,18 +120,14 @@
         </div>
         
         <div class="board-grid" id="board-list-container">
-            <div class="create-board-card" onclick="openCreateBoardModal()">
-                <i class="fa-solid fa-circle-plus" style="font-size: 32px; margin-bottom: 15px;"></i>
-                새로운 보드 만들기
             </div>
-        </div>
     </div>
 
     <div id="board-workspace-container" class="hidden" style="display: flex; flex-direction: column; height: 100vh;">
         <header id="board-header">
             <div class="board-title-area">
                 <h2 id="current-board-title">보드 제목</h2>
-                <p id="current-board-desc">보드 설명이 이곳에 표시됩니다.</p>
+                <p id="current-board-desc">보드 설명</p>
             </div>
             <div style="display: flex; gap: 10px; align-items: center;">
                 <span id="current-user-info" style="font-size: 14px; font-weight: 600; color: var(--text-sub); margin-right: 15px;"></span>
@@ -153,10 +147,9 @@
             <button class="btn-close-modal" onclick="closeModal('modal-board-form')"><i class="fa-solid fa-xmark"></i></button>
             <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 20px;" id="board-modal-title">새 보드 만들기</h2>
             <label style="font-weight: 600; font-size: 14px; margin-bottom: 8px; display: block;">보드 제목</label>
-            <input type="text" id="new-board-title" class="form-input" placeholder="예: 4학년 1학기 국어 질문방">
+            <input type="text" id="new-board-title" class="form-input" placeholder="예: 국어 질문방">
             <label style="font-weight: 600; font-size: 14px; margin-bottom: 8px; display: block; margin-top: 10px;">보드 설명 (선택)</label>
-            <textarea id="new-board-desc" class="form-input" rows="3" placeholder="학생들에게 보여줄 안내 사항을 적어주세요"></textarea>
-            <input type="hidden" id="edit-board-id" value="">
+            <textarea id="new-board-desc" class="form-input" rows="3" placeholder="학생들에게 보여줄 안내 사항"></textarea>
             <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="saveBoard()">저장하기</button>
         </div>
     </div>
@@ -164,14 +157,12 @@
     <div id="modal-invite" class="modal-overlay hidden">
         <div class="modal-content">
             <button class="btn-close-modal" onclick="closeModal('modal-invite')"><i class="fa-solid fa-xmark"></i></button>
-            <div class="qr-domain" id="qr-domain-text">우리반 보드</div>
+            <div class="qr-domain" id="qr-domain-text">우리반 온라인 보드</div>
             <div class="qr-subtitle">접속 후 방번호 입력</div>
             <div class="qr-code-text" id="display-access-code">000000</div>
-            
             <div class="qr-image-wrapper">
                 <img id="qr-image" src="" alt="QR Code" width="180" height="180">
             </div>
-            
             <div class="qr-actions">
                 <button onclick="enlargeQR()">QR 크게 보기</button>
                 <button onclick="copyDirectLink()">링크 복사</button>
@@ -179,11 +170,10 @@
         </div>
     </div>
 
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB29-sMOLGpBEefRZoqfy8oPzzo8Ed571M",
@@ -198,14 +188,13 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // 상태 변수
         window.currentUser = null;
         window.currentBoard = null;
         window.boardPosts = [];
         window.unsubscribePosts = null;
         const colors = ['#FFFFFF', '#FFEBEE', '#E3F2FD', '#E8F5E9', '#FFF3E0', '#F3E5F5'];
 
-        // --- 1. 로그인 및 인증 ---
+        // 1. 로그인
         window.teacherLogin = async () => {
             try {
                 const result = await signInWithPopup(auth, new GoogleAuthProvider());
@@ -219,7 +208,6 @@
             const code = document.getElementById('join-code').value.trim();
             if (!name || code.length !== 6) return alert("이름과 6자리 방번호를 정확히 입력해주세요.");
 
-            // 방 번호로 보드 검색
             const q = query(collection(db, "boards"), where("accessCode", "==", code));
             const snap = await getDocs(q);
             
@@ -241,7 +229,7 @@
             location.reload();
         }
 
-        // --- 2. 교사 대시보드 로직 ---
+        // 2. 대시보드
         function showDashboard() {
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('board-workspace-container').classList.add('hidden');
@@ -251,13 +239,11 @@
             loadTeacherBoards();
         }
 
+        // 복합 색인 에러 방지를 위해 orderBy 제외 후 JS 배열에서 정렬
         function loadTeacherBoards() {
-            // orderBy를 빼서 Firebase의 복합 색인 에러를 방지합니다.
             const q = query(collection(db, "boards"), where("teacherId", "==", window.currentUser.uid));
-            
             onSnapshot(q, (snapshot) => {
                 const container = document.getElementById('board-list-container');
-                // 새 보드 만들기 버튼 유지
                 container.innerHTML = `
                     <div class="create-board-card" onclick="openCreateBoardModal()">
                         <i class="fa-solid fa-circle-plus" style="font-size: 32px; margin-bottom: 15px;"></i>
@@ -265,15 +251,10 @@
                     </div>
                 `;
 
-                // 데이터를 배열로 모은 뒤 자바스크립트에서 최신순(내림차순)으로 직접 정렬합니다.
                 const boards = [];
-                snapshot.forEach(doc => {
-                    boards.push({ id: doc.id, ...doc.data() });
-                });
-                
-                boards.sort((a, b) => b.createdAt - a.createdAt);
+                snapshot.forEach(doc => { boards.push({ id: doc.id, ...doc.data() }); });
+                boards.sort((a, b) => b.createdAt - a.createdAt); // 최신순 자체 정렬
 
-                // 정렬된 배열을 화면에 렌더링합니다.
                 boards.forEach(b => {
                     container.innerHTML += `
                         <div class="board-card" onclick="enterTeacherBoard('${b.id}', '${b.title}', '${b.description}', '${b.accessCode}')">
@@ -288,17 +269,12 @@
                         </div>
                     `;
                 });
-            }, (error) => {
-                console.error("보드 목록을 불러오는 중 에러 발생:", error);
-            });
+            }, (error) => { console.error("대시보드 에러:", error); });
         }
 
-        // 보드 생성 
         window.openCreateBoardModal = () => {
             document.getElementById('new-board-title').value = '';
             document.getElementById('new-board-desc').value = '';
-            document.getElementById('edit-board-id').value = '';
-            document.getElementById('board-modal-title').innerText = '새 보드 만들기';
             document.getElementById('modal-board-form').classList.remove('hidden');
         }
 
@@ -307,7 +283,6 @@
             const desc = document.getElementById('new-board-desc').value.trim();
             if (!title) return alert("보드 제목을 입력하세요.");
 
-            // 6자리 랜덤 접근 코드 생성
             const accessCode = Math.floor(100000 + Math.random() * 900000).toString();
 
             try {
@@ -323,11 +298,10 @@
         window.deleteBoard = async (boardId) => {
             if(confirm("이 보드와 내부의 모든 게시물이 삭제됩니다. 계속하시겠습니까?")) {
                 await deleteDoc(doc(db, "boards", boardId));
-                // Note: 실제 프로덕션에서는 하위 posts 컬렉션 데이터도 함께 지워주는 로직이 필요할 수 있습니다.
             }
         }
 
-        // --- 3. 보드 작업 공간 (학생 & 교사 공통) ---
+        // 3. 개별 보드 진입 및 게시물 로드
         window.enterTeacherBoard = (id, title, desc, accessCode) => {
             window.currentBoard = { id, title, description: desc, accessCode };
             openBoardWorkspace();
@@ -342,7 +316,6 @@
             document.getElementById('current-board-desc').innerText = window.currentBoard.description || '';
             document.getElementById('current-user-info').innerText = `${window.currentUser.name} (${window.currentUser.role === 'teacher' ? '교사' : '학생'})`;
             
-            // 학생은 초대 버튼 숨김
             if (window.currentUser.role === 'student') {
                 document.getElementById('btn-share-invite').style.display = 'none';
             } else {
@@ -357,28 +330,37 @@
             if (window.currentUser.role === 'teacher') {
                 showDashboard();
             } else {
-                logout(); // 학생은 나가기 누르면 메인으로
+                logout();
             }
         }
 
-        // 게시물 불러오기
+        // 💡 핵심 수정: 복합 색인 에러 방지를 위해 orderBy 제외 후 배열 자체 정렬
         function loadPosts() {
             if (window.unsubscribePosts) window.unsubscribePosts();
-            const q = query(collection(db, "posts"), where("boardId", "==", window.currentBoard.id), orderBy("createdAt", "desc"));
+            const q = query(collection(db, "posts"), where("boardId", "==", window.currentBoard.id));
+            
             window.unsubscribePosts = onSnapshot(q, (snapshot) => {
-                window.boardPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderPostsUI();
+                const posts = [];
+                snapshot.forEach(doc => { posts.push({ id: doc.id, ...doc.data() }); });
+                
+                // 자바스크립트 단에서 최신순으로 정렬
+                posts.sort((a, b) => b.createdAt - a.createdAt);
+                window.boardPosts = posts;
+                
+                renderPostsUI(); // 정상적으로 렌더링 호출
+            }, (error) => {
+                console.error("게시물 로드 에러:", error);
+                alert("게시물을 불러오는 중 문제가 발생했습니다.");
             });
         }
 
-        // 자유배치(Freestyle) 형태의 렌더링
         function renderPostsUI() {
             const container = document.getElementById('posts-container');
-            container.innerHTML = window.boardPosts.map(post => {
+            
+            // 1. 기존 게시물 렌더링
+            const postsHtml = window.boardPosts.map(post => {
                 const canEdit = window.currentUser.role === 'teacher' || window.currentUser.uid === post.authorId;
-                const controlsHtml = canEdit ? `
-                    <button onclick="deletePost('${post.id}')" style="background:none; border:none; cursor:pointer; color:var(--text-sub);"><i class="fa-solid fa-trash"></i></button>
-                ` : '';
+                const controlsHtml = canEdit ? `<button onclick="deletePost('${post.id}')" style="background:none; border:none; cursor:pointer; color:var(--text-sub);"><i class="fa-solid fa-trash"></i></button>` : '';
 
                 return `
                     <div class="card" style="background-color: ${post.color || '#FFFFFF'}">
@@ -392,7 +374,9 @@
                 `;
             }).join('');
 
-            // 작성 폼 항상 첫번째에 추가
+            container.innerHTML = postsHtml;
+
+            // 2. 작성 폼 항상 첫번째에 추가 (이 부분이 에러로 인해 실행 안 됐던 부분)
             container.insertAdjacentHTML('afterbegin', getPostFormHTML());
         }
 
@@ -404,83 +388,6 @@
                     <input type="hidden" id="post-color" value="#FFFFFF">
                     <input type="text" class="form-input" id="post-title" placeholder="제목을 입력하세요">
                     <textarea class="form-input" id="post-content" rows="4" placeholder="내용을 입력하세요" style="resize:none;"></textarea>
-                    <button class="btn-primary" style="width: 100%;" onclick="submitPost()">게시하기</button>
-                </div>
-            `;
-        }
-
-        window.selectColor = (el, color) => {
-            const dots = el.parentElement.querySelectorAll('.color-dot');
-            dots.forEach(d => d.classList.remove('active'));
-            el.classList.add('active');
-            document.getElementById('post-color').value = color;
-            document.getElementById('main-post-form').style.backgroundColor = color;
-        }
-
-        window.submitPost = async () => {
-            const title = document.getElementById('post-title').value.trim();
-            const content = document.getElementById('post-content').value.trim();
-            const color = document.getElementById('post-color').value;
-
-            if (!title || !content) return alert("제목과 내용을 입력해주세요.");
-
-            await addDoc(collection(db, "posts"), {
-                boardId: window.currentBoard.id,
-                title, content, color,
-                authorId: window.currentUser.uid,
-                authorName: window.currentUser.name,
-                createdAt: Date.now()
-            });
-        }
-
-        window.deletePost = async (postId) => {
-            if(confirm("게시물을 삭제하시겠습니까?")) {
-                await deleteDoc(doc(db, "posts", postId));
-            }
-        }
-
-        // --- 4. 안내창 (QR 및 코드) ---
-        window.showInviteModal = () => {
-            const code = window.currentBoard.accessCode;
-            document.getElementById('display-access-code').innerText = code;
-            
-            // 현재 주소를 기반으로 짧은 도메인명 표시 (예: tkbell.kr 처럼)
-            document.getElementById('qr-domain-text').innerText = window.location.hostname || "우리반 보드";
-            
-            // 학생이 접속할 다이렉트 링크 구성 (?code=방번호)
-            const directUrl = `${window.location.origin}${window.location.pathname}?code=${code}`;
-            
-            // 구글 Chart API를 이용해 QR코드 이미지 생성
-            document.getElementById('qr-image').src = `https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=${encodeURIComponent(directUrl)}`;
-            
-            document.getElementById('modal-invite').classList.remove('hidden');
-        }
-
-        window.closeModal = (modalId) => {
-            document.getElementById(modalId).classList.add('hidden');
-        }
-
-        window.copyDirectLink = () => {
-            const code = window.currentBoard.accessCode;
-            const directUrl = `${window.location.origin}${window.location.pathname}?code=${code}`;
-            navigator.clipboard.writeText(directUrl).then(() => {
-                alert(`학생 배포용 링크가 복사되었습니다.\n${directUrl}`);
-            });
-        }
-
-        window.enlargeQR = () => {
-            const imgUrl = document.getElementById('qr-image').src;
-            const newWin = window.open('', '_blank');
-            newWin.document.write(`<body style="display:flex; justify-content:center; align-items:center; height:100vh; margin:0;"><img src="${imgUrl}" style="width:500px; height:500px;"></body>`);
-        }
-
-        // URL 파라미터 체크 로직 (링크 복사해서 들어온 경우 자동 입력)
-        window.onload = () => {
-            const params = new URLSearchParams(window.location.search);
-            if(params.has('code')) {
-                document.getElementById('join-code').value = params.get('code');
-            }
-        };
-    </script>
-</body>
-</html>
+                    
+                    <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+                        <button class="btn-secondary"
